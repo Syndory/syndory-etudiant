@@ -14,7 +14,7 @@ class AppBottomNavBar extends StatelessWidget {
 
   static const _icons = [
     Icons.home_rounded,
-    Icons.book_rounded,
+    Icons.calendar_month,
     Icons.bar_chart_rounded,
     Icons.notifications_rounded,
     Icons.person_rounded,
