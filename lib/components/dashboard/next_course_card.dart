@@ -17,7 +17,7 @@ class NextCourseCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF052A36), // Bleu nuit très sombre
+        color: const Color.fromARGB(255, 7, 57, 73), // Bleu nuit très sombre
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(

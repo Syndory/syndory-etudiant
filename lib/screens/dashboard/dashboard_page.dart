@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/mock_data.dart';
+import 'package:syndory_etudiant/dashboard_mock_data.dart';
 import 'package:syndory_etudiant/components/dashboard/active_session_banner.dart';
 import 'package:syndory_etudiant/components/dashboard/next_course_card.dart';
 import 'package:syndory_etudiant/components/dashboard/timetable_section.dart';
