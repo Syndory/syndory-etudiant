@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';
-import 'features/calendar/calendar_page.dart';
+import 'screens/calendar/calendar_page.dart';
 
 void main() {
   runApp(const MyApp());
