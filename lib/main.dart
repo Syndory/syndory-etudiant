@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';
 import 'features/calendar/calendar_page.dart';
+import 'screens/seances_en_cours/en_cours_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
       // On affiche directement notre page de tableau de bord
       //home: const DashboardPage(),
       //home: CalendarPage(),
-
+      home: const EnCoursScreen(),
     );
   }
 }
