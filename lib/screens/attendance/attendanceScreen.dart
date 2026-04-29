@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
-import 'package:syndory_etudiant/components/courseAttendanceCard.dart';
-import 'package:syndory_etudiant/components/appBar.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
-import 'package:syndory_etudiant/components/historyItem.dart';
-import 'package:syndory_etudiant/components/progressring.dart';
-import 'package:syndory_etudiant/components/tabBar.dart';
+import 'package:syndory_etudiant/components/attendance/courseAttendanceCard.dart';
+import 'package:syndory_etudiant/components/attendance/appBar.dart';
+import 'package:syndory_etudiant/components/attendance/historyItem.dart';
+import 'package:syndory_etudiant/components/attendance/progressring.dart';
+import 'package:syndory_etudiant/components/attendance/tabBar.dart';
 import 'package:syndory_etudiant/mock/mock.dart';
 import 'package:syndory_etudiant/models/periodModel.dart';
 

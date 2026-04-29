@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/appTheme.dart';
+import 'package:syndory_etudiant/components/apptheme.dart';
 
 /// AppBar personnalisé partagé entre les deux écrans.
 class AssiduiteAppBar extends StatelessWidget implements PreferredSizeWidget {

@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'calendar_data.dart';
-import 'calendar_widgets.dart';
+import 'package:syndory_etudiant/components/appBottomNavbar.dart'; // ✅ import
+import '../../features/calendar/calendar_data.dart';
+import '../../features/calendar/calendar_widgets.dart';
 
 class CalendarPage extends StatefulWidget {
-  const CalendarPage({super.key});
+  final int navIndex;
+  final ValueChanged<int>? onNavTap;
+
+  const CalendarPage({
+    super.key,
+    this.navIndex = 1, // ✅ index calendrier
+    this.onNavTap,
+  });
 
   @override
   State<CalendarPage> createState() => _CalendarPageState();
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  // 0 = Jour, 1 = Semaine, 2 = Mois
   int _viewIndex = 1;
-
   SubjectTag _selectedTag = SubjectTag.all;
-
-  // Semaine courante : lundi de la semaine du 14 oct 2024
   DateTime _weekStart = DateTime(2024, 10, 14);
-
-  int _bottomNavIndex = 1;
 
   final List<CourseModel> _allCourses = getMockData();
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   List<DateTime> get _weekDays =>
       List.generate(7, (i) => _weekStart.add(Duration(days: i)));
@@ -63,8 +65,6 @@ class _CalendarPageState extends State<CalendarPage> {
     return '${_frDays[date.weekday]} ${date.day} ${_frMonthsShort[date.month]}';
   }
 
-  // ── Actions ───────────────────────────────────────────────────────────────
-
   void _prevWeek() =>
       setState(() => _weekStart = _weekStart.subtract(const Duration(days: 7)));
 
@@ -84,7 +84,11 @@ class _CalendarPageState extends State<CalendarPage> {
           Expanded(child: _buildBody()),
         ],
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      // ✅ Remplace le BottomNavigationBar hardcodé par le composant partagé
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: widget.navIndex,
+        onTap: widget.onNavTap,
+      ),
     );
   }
 
@@ -140,7 +144,6 @@ class _CalendarPageState extends State<CalendarPage> {
               onNext: _nextWeek,
             ),
           ],
-          // Filtre masqué en vue mois (la navigation mois est dans le body)
           if (_viewIndex == 2) const SizedBox(height: 4),
           const SizedBox(height: 12),
           SubjectFilterBar(
@@ -160,11 +163,9 @@ class _CalendarPageState extends State<CalendarPage> {
         selectedTag: _selectedTag,
       );
     }
-    // Vue Jour : affiche seulement le premier jour de la semaine
     if (_viewIndex == 0) {
       return _buildDayList([_weekStart]);
     }
-    // Vue Semaine
     return _buildDayList(_weekDays);
   }
 
@@ -180,9 +181,9 @@ class _CalendarPageState extends State<CalendarPage> {
           children: [
             DayHeader(label: _dayLabel(day)),
             if (courses.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: const EmptyCourseCard(),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 20),
+                child: EmptyCourseCard(),
               )
             else
               ...courses.map((c) => CourseCard(course: c)),
@@ -190,27 +191,6 @@ class _CalendarPageState extends State<CalendarPage> {
           ],
         );
       },
-    );
-  }
-
-  BottomNavigationBar _buildBottomNav() {
-    return BottomNavigationBar(
-      currentIndex: _bottomNavIndex,
-      onTap: (i) => setState(() => _bottomNavIndex = i),
-      backgroundColor: Colors.white,
-      elevation: 8,
-      selectedItemColor: kOrange,
-      unselectedItemColor: kGrey,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
-      type: BottomNavigationBarType.fixed,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-      ],
     );
   }
 }

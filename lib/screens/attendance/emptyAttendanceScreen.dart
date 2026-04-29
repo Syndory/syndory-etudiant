@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/AppBottomNavbar.dart';
-import 'package:syndory_etudiant/components/appBar.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/components/attendance/appBar.dart';
+import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 
 
 class EmptyAttendanceScreen extends StatelessWidget {
