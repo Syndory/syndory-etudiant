@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'features/calendar/calendar_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,6 +32,8 @@ class MyApp extends StatelessWidget {
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      //home: CalendarPage(),
+
     );
   }
 }
