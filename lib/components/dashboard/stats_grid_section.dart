@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:syndory_etudiant/screens/devoir/devoirs_screen.dart';
 
 class StatsGridSection extends StatelessWidget {
   const StatsGridSection({super.key});
@@ -115,8 +116,12 @@ class StatsGridSection extends StatelessWidget {
                   // Bouton Voir tout (Lien Devoirs)
                   _buildViewAllButton(
                     onPressed: () {
-                      // LIEN : Naviguer vers la page ETU-08 (Liste des devoirs / Ressources)
                       print("Navigation vers ETU-08...");
+                      
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => DevoirsScreen()),
+                      );
                     },
                   ),
                 ],

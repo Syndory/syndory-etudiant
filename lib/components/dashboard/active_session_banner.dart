@@ -19,8 +19,8 @@ class _ActiveSessionBannerState extends State<ActiveSessionBanner>
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
-
-    _opacityAnimation = Tween<double>(begin: 1.0, end: 0.3).animate(_controller);
+    _opacityAnimation =
+        Tween<double>(begin: 1.0, end: 0.3).animate(_controller);
   }
 
   @override
@@ -31,9 +31,9 @@ class _ActiveSessionBannerState extends State<ActiveSessionBanner>
 
   @override
   Widget build(BuildContext context) {
-    const Color brandGreen = Color(0xFF00875A); // Vert émeraude de la maquette
-    const Color bgMenthe = Color(0xFFEFFFF5);   // Fond menthe pâle
-    const Color borderMenthe = Color(0xFFD1FADC); // Bordure douce
+    const Color brandGreen = Color(0xFF00875A);
+    const Color bgMenthe = Color(0xFFEFFFF5);
+    const Color borderMenthe = Color(0xFFD1FADC);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -45,7 +45,7 @@ class _ActiveSessionBannerState extends State<ActiveSessionBanner>
       ),
       child: Row(
         children: [
-          // 1. INDICATEUR CLIGNOTANT (Point + Cercle fin)
+          // 1. Indicateur clignotant
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -57,7 +57,6 @@ class _ActiveSessionBannerState extends State<ActiveSessionBanner>
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Ligne fine extérieure
                   Container(
                     height: 18,
                     width: 18,
@@ -66,7 +65,6 @@ class _ActiveSessionBannerState extends State<ActiveSessionBanner>
                       border: Border.all(color: brandGreen, width: 1.5),
                     ),
                   ),
-                  // Point central
                   Container(
                     height: 8,
                     width: 8,
@@ -82,12 +80,12 @@ class _ActiveSessionBannerState extends State<ActiveSessionBanner>
 
           const SizedBox(width: 16),
 
-          // 2. TEXTES
-          Expanded(
+          // 2. Textes
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'EN COURS',
                   style: TextStyle(
                     color: brandGreen,
@@ -96,11 +94,11 @@ class _ActiveSessionBannerState extends State<ActiveSessionBanner>
                     letterSpacing: 0.5,
                   ),
                 ),
-                const SizedBox(height: 2),
-                const Text(
+                SizedBox(height: 2),
+                Text(
                   'Structures de données & Algorithmes',
                   style: TextStyle(
-                    color: Color(0xFF0A261D), // Vert-Noir très sombre
+                    color: Color(0xFF0A261D),
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
@@ -113,22 +111,24 @@ class _ActiveSessionBannerState extends State<ActiveSessionBanner>
 
           const SizedBox(width: 8),
 
-          // 3. BOUTON PRÉSENCE
-          ElevatedButton(
-            onPressed: () {
-              // LIEN : Vers marquage géolocalisé (ETU-06)
-              debugPrint("Navigation vers ETU-06");
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: brandGreen,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: const StadiumBorder(), // Forme pilule parfaite
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
-            child: const Text(
-              'Présence',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          // 3. Bouton Présence — ✅ SizedBox contraint
+          SizedBox(
+            height: 40,
+            child: ElevatedButton(
+              onPressed: () => debugPrint("Navigation vers ETU-06"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: brandGreen,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: const StadiumBorder(),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                minimumSize: const Size(90, 40), // ✅ largeur minimale fixe
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Présence',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],

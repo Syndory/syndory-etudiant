@@ -678,3 +678,160 @@ class _CalCell {
   final DateTime date;
   final bool current;
 }
+
+// ── CalendarLoadingSkeleton ───────────────────────────────────────────────────
+
+class CalendarLoadingSkeleton extends StatefulWidget {
+  const CalendarLoadingSkeleton({super.key});
+
+  @override
+  State<CalendarLoadingSkeleton> createState() =>
+      _CalendarLoadingSkeletonState();
+}
+
+class _CalendarLoadingSkeletonState extends State<CalendarLoadingSkeleton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+    _opacity = Tween<double>(begin: 0.35, end: 0.75).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _opacity,
+      builder: (_, child) => Column(
+        children: [
+          // Top controls skeleton (fond blanc, même hauteur que la vraie zone)
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Opacity(
+              opacity: _opacity.value,
+              child: Column(
+                children: [
+                  // Toggle
+                  _box(height: 40, radius: 12),
+                  const SizedBox(height: 12),
+                  // Navigateur semaine
+                  Row(
+                    children: [
+                      _box(width: 28, height: 28, radius: 8),
+                      const SizedBox(width: 16),
+                      Expanded(child: _box(height: 18, radius: 6)),
+                      const SizedBox(width: 16),
+                      _box(width: 28, height: 28, radius: 8),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Filtres chips
+                  Row(
+                    children: [56.0, 68.0, 90.0, 72.0].map((w) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: _box(width: w, height: 36, radius: 20),
+                    )).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Corps skeleton
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+              child: Opacity(
+                opacity: _opacity.value,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _daySection(cardCount: 2),
+                    const SizedBox(height: 20),
+                    _daySection(cardCount: 2),
+                    const SizedBox(height: 20),
+                    _daySection(cardCount: 1),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _daySection({required int cardCount}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // En-tête jour
+        Row(
+          children: [
+            _box(width: 130, height: 18, radius: 6),
+            const SizedBox(width: 10),
+            Expanded(child: _box(height: 1, radius: 1)),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...List.generate(cardCount, (_) => _courseCardSkeleton()),
+      ],
+    );
+  }
+
+  Widget _courseCardSkeleton() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: const Border(
+          left: BorderSide(color: Color(0xFFE5E7EB), width: 4),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            _box(width: 110, height: 16, radius: 6),
+            const Spacer(),
+            _box(width: 72, height: 24, radius: 6),
+          ]),
+          const SizedBox(height: 10),
+          _box(height: 18, radius: 6),
+          const SizedBox(height: 8),
+          _box(width: 170, height: 13, radius: 5),
+          const SizedBox(height: 6),
+          _box(width: 140, height: 13, radius: 5),
+        ],
+      ),
+    );
+  }
+
+  Widget _box({double? width, required double height, double radius = 8}) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE5E7EB),
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+}
