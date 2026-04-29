@@ -21,16 +21,20 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   bool _isLoading = true;
+  bool _hasLoaded = false;
   int _viewIndex = 1;
   SubjectTag _selectedTag = SubjectTag.all;
   DateTime _weekStart = DateTime(2024, 10, 14);
 
   List<CourseModel> _allCourses = [];
 
+  // Déclenché quand l'onglet calendar devient actif (IndexedStack passe navIndex=1)
   @override
-  void initState() {
-    super.initState();
-    _loadData();
+  void didUpdateWidget(CalendarPage old) {
+    super.didUpdateWidget(old);
+    if (widget.navIndex == 1 && !_hasLoaded) {
+      _loadData();
+    }
   }
 
   Future<void> _loadData() async {
@@ -40,6 +44,7 @@ class _CalendarPageState extends State<CalendarPage> {
     setState(() {
       _allCourses = getMockData();
       _isLoading = false;
+      _hasLoaded = true;
     });
   }
 
