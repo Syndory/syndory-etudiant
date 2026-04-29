@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';
+import 'features/calendar/calendar_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +21,9 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
       // On affiche directement notre page de tableau de bord
-      home: const DashboardPage(),
+      //home: const DashboardPage(),
+      //home: CalendarPage(),
+
     );
   }
 }
