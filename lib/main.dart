@@ -46,7 +46,7 @@ class _AppShellState extends State<AppShell> {
         children: [
           DashboardPage(navIndex: _currentIndex, onNavTap: _onNavTap),
           CalendarPage(navIndex: _currentIndex, onNavTap: _onNavTap),
-          MatieresScreen(navIndex:   _currentIndex, onNavTap: _onNavTap),
+          MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
           DevoirsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
           _PlaceholderPage(
             label: 'Profil',
