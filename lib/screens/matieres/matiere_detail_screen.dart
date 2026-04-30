@@ -48,7 +48,6 @@ class MatiereDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Badge + Nom directement sur le fond gris
             Text(
               matiere['badge'] as String,
               style: TextStyle(
@@ -68,8 +67,6 @@ class MatiereDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Cards Progression + Assiduité
             Row(
               children: [
                 Expanded(
@@ -98,8 +95,6 @@ class MatiereDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-
-            // Programme du cours
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -122,7 +117,6 @@ class MatiereDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-
             _ChapitreItem(
               titre: 'Chapitre 1: Introduction',
               sousTitre: 'Théorie des graphes & Complexité',
@@ -141,8 +135,6 @@ class MatiereDetailScreen extends StatelessWidget {
               traite: false,
             ),
             const SizedBox(height: 20),
-
-            // Ressources
             const Text(
               'Ressources',
               style: TextStyle(
@@ -152,7 +144,6 @@ class MatiereDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-
             Row(
               children: [
                 Expanded(
@@ -177,8 +168,6 @@ class MatiereDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-
-            // Historique des séances
             const Text(
               'Historique des séances',
               style: TextStyle(
@@ -188,7 +177,6 @@ class MatiereDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-
             _SeanceItem(
               mois: 'MAI',
               jour: '24',
@@ -329,18 +317,14 @@ class _ChapitreItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: traite
-                  ? const Color(0xFFE6F4EA)
-                  : Colors.grey.shade100,
+              color: traite ? const Color(0xFFE6F4EA) : Colors.grey.shade100,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               traite ? 'TRAITÉ' : 'NON\nTRAITÉ',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: traite
-                    ? const Color(0xFF2E7D32)
-                    : Colors.grey.shade500,
+                color: traite ? const Color(0xFF2E7D32) : Colors.grey.shade500,
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
               ),
