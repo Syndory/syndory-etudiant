@@ -22,10 +22,10 @@ class _DevoirsScreenState extends State<DevoirsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F4F7),
 
-      // ── 1. Barre de navigation supérieure ─────────────────────
+      // ── 1. Barre de navigation supérieure 
       appBar: AppNavbar(title: 'Mes Devoirs'),
 
-      // ── 2. Corps principal (filtrage géré dans DevoirsBody) ───
+      // ── 2. Corps principal (filtrage géré dans DevoirsBody)
       body: DevoirsBody(
         activeTab: _activeTab,
         devoirs: _devoirs,

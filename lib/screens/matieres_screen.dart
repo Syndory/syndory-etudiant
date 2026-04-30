@@ -23,10 +23,10 @@ class _MatieresScreenState extends State<MatieresScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F4F7),
 
-      // ── 1. Barre de navigation supérieure ─────────────────────
+      // ── 1. Barre de navigation supérieure 
       appBar: AppNavbar(title: 'Mes matières'),
 
-      // ── 2. Corps principal (filtrage géré dans MatieresBody) ──
+      // ── 2. Corps principal (filtrage géré dans MatieresBody) ─
       body: MatieresBody(
         activeSemestre: _activeSemestre,
         matieres: _matieres,

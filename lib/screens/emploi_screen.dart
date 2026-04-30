@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Page blanche — Emploi du temps
-/// (développée par une autre équipe)
+
 class EmploiScreen extends StatelessWidget {
   const EmploiScreen();
 

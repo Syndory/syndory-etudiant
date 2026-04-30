@@ -27,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const AccueilScreen(),
     DevoirsScreen(),         // l'écran qu'on avait déjà
-    MatieresScreen(),        // ← Mes Matières (remplace la page vide Emploi)
+    MatieresScreen(),        //  Mes Matières (remplace la page vide Emploi)
     const ProfilScreen(),
   ];
 
