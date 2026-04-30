@@ -1,4 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:syndory_etudiant/components/appBottomNavbar.dart';
+import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/screens/attendance/attendanceScreen.dart';
+import 'package:syndory_etudiant/screens/attendance/emptyAttendanceScreen.dart';
+import 'package:syndory_etudiant/screens/calendar/calendar_page.dart';
+import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';
+import 'package:syndory_etudiant/screens/devoir/devoirs_screen.dart';
+import 'package:syndory_etudiant/screens/justificatif/justificatifs_tab.dart';
+import 'package:syndory_etudiant/screens/matieres/matieres_screen.dart';
 
 void main() {
   runApp(const SyndoryEtudiantApp());
@@ -10,61 +19,82 @@ class SyndoryEtudiantApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Syndory Etudiant',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFFF5A14),
-          primary: const Color(0xFFFF5A14),
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 10,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(2),
-            borderSide: const BorderSide(color: Color(0xFFE8EEF5)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(2),
-            borderSide: const BorderSide(color: Color(0xFFE8EEF5)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(2),
-            borderSide: const BorderSide(color: Color(0xFFFF5A14)),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(2),
-            borderSide: const BorderSide(color: Color(0xFFE53935)),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(2),
-            borderSide: const BorderSide(color: Color(0xFFE53935)),
-          ),
-          labelStyle: const TextStyle(
-            color: Color(0xFF53657A),
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-          ),
-          errorStyle: const TextStyle(
-            color: Color(0xFFE53935),
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        useMaterial3: true,
-      ),
-      home: const StudentProfilePage(),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      home: const AppShell(),
+    );
+  }
+}
+
+class AppShell extends StatefulWidget {
+  const AppShell({super.key});
+
+  @override
+  State<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<AppShell> {
+  int _currentIndex = 0;
+
+  void _onNavTap(int index) => setState(() => _currentIndex = index);
+
+  @override
+  Widget build(BuildContext context) {
+    return IndexedStack(
+      index: _currentIndex,
+      children: [
+        DashboardPage(navIndex: _currentIndex, onNavTap: _onNavTap),
+        CalendarPage(navIndex: _currentIndex, onNavTap: _onNavTap),
+        JustificatifsTab(navIndex: _currentIndex, onNavTap: _onNavTap),
+        _AttendanceTab(navIndex: _currentIndex, onNavTap: _onNavTap),
+        MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
+        DevoirsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
+        StudentProfilePage(navIndex: _currentIndex, onNavTap: _onNavTap),
+      ],
+    );
+  }
+}
+
+class _AttendanceTab extends StatefulWidget {
+  const _AttendanceTab({required this.navIndex, required this.onNavTap});
+
+  final int navIndex;
+  final ValueChanged<int> onNavTap;
+
+  @override
+  State<_AttendanceTab> createState() => _AttendanceTabState();
+}
+
+class _AttendanceTabState extends State<_AttendanceTab> {
+  bool _hasData = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_hasData) {
+      return AttendanceScreen(
+        navIndex: widget.navIndex,
+        onNavTap: widget.onNavTap,
+      );
+    }
+
+    return EmptyAttendanceScreen(
+      navIndex: widget.navIndex,
+      onNavTap: widget.onNavTap,
+      onRefresh: () => setState(() => _hasData = true),
     );
   }
 }
 
 class StudentProfilePage extends StatefulWidget {
-  const StudentProfilePage({super.key});
+  const StudentProfilePage({
+    super.key,
+    required this.navIndex,
+    required this.onNavTap,
+  });
+
+  final int navIndex;
+  final ValueChanged<int> onNavTap;
 
   @override
   State<StudentProfilePage> createState() => _StudentProfilePageState();
@@ -79,7 +109,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
   );
   final _phoneController = TextEditingController(text: '+225 01 23 45 67 89');
   final _addressController = TextEditingController(
-    text: "Cocody, Abidjan, C\u00f4te d'Ivoire",
+    text: "Cocody, Abidjan, Cote d'Ivoire",
   );
   final _oldPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
@@ -92,7 +122,6 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
   bool _hasProfileChanges = false;
   bool _isSavingProfile = false;
   bool _showSuccessMessage = false;
-  int _selectedTab = 4;
 
   @override
   void initState() {
@@ -163,6 +192,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.bgPrimary,
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
@@ -170,18 +200,11 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
         shadowColor: const Color(0xFFE6ECF2),
         leading: IconButton(
           tooltip: 'Retour',
-          onPressed: () {},
+          onPressed: () => widget.onNavTap(0),
           icon: const Icon(Icons.arrow_back, size: 20),
         ),
         centerTitle: true,
-        title: const Text(
-          'Mon Profil',
-          style: TextStyle(
-            color: Color(0xFF0F2037),
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        title: const Text('Mon Profil'),
       ),
       body: SafeArea(
         child: Stack(
@@ -248,9 +271,9 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                       ),
                       const SizedBox(height: 24),
                       FilledButton(
-                        onPressed: () {},
+                        onPressed: () => widget.onNavTap(3),
                         style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFFFF5A14),
+                          backgroundColor: AppColors.orange,
                           foregroundColor: Colors.white,
                           minimumSize: const Size.fromHeight(44),
                           shape: RoundedRectangleBorder(
@@ -284,9 +307,9 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
           ],
         ),
       ),
-      bottomNavigationBar: _ProfileBottomBar(
-        selectedIndex: _selectedTab,
-        onSelected: (index) => setState(() => _selectedTab = index),
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: widget.navIndex,
+        onTap: widget.onNavTap,
       ),
     );
   }
@@ -339,7 +362,7 @@ class _ProfileHeader extends StatelessWidget {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF5A14),
+                  color: AppColors.orange,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 3),
                 ),
@@ -360,7 +383,7 @@ class _ProfileHeader extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         const Text(
-          'Informatique \u2022 Master 1',
+          'Informatique - Master 1',
           style: TextStyle(
             color: Color(0xFF687587),
             fontSize: 12,
@@ -443,7 +466,7 @@ class _ProfileInformationCard extends StatelessWidget {
               FilledButton.icon(
                 onPressed: isSaving ? null : onSave,
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF8A50),
+                  backgroundColor: AppColors.orangeLight,
                   disabledBackgroundColor: const Color(0xFFFFA06D),
                   foregroundColor: Colors.white,
                   disabledForegroundColor: Colors.white,
@@ -576,7 +599,7 @@ class _PasswordCard extends StatelessWidget {
                   child: FilledButton(
                     onPressed: onSave,
                     style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF5A14),
+                      backgroundColor: AppColors.orange,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(2),
@@ -776,7 +799,7 @@ class _SuccessToast extends StatelessWidget {
           const SizedBox(width: 12),
           const Expanded(
             child: Text(
-              'Profil mis \u00e0 jour avec succ\u00e8s.',
+              'Profil mis a jour avec succes.',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 13,
@@ -808,52 +831,6 @@ class _CardTitle extends StatelessWidget {
         color: Color(0xFF0F2037),
         fontSize: 13,
         fontWeight: FontWeight.w800,
-      ),
-    );
-  }
-}
-
-class _ProfileBottomBar extends StatelessWidget {
-  const _ProfileBottomBar({
-    required this.selectedIndex,
-    required this.onSelected,
-  });
-
-  final int selectedIndex;
-  final ValueChanged<int> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final items = [
-      Icons.home,
-      Icons.calendar_today_outlined,
-      Icons.menu_book_outlined,
-      Icons.pie_chart_outline,
-      Icons.person_outline,
-    ];
-
-    return Container(
-      height: 62,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE8EEF5))),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          for (var i = 0; i < items.length; i++)
-            IconButton(
-              tooltip: 'Onglet ${i + 1}',
-              onPressed: () => onSelected(i),
-              icon: Icon(
-                items[i],
-                size: 20,
-                color: selectedIndex == i
-                    ? const Color(0xFFFF5A14)
-                    : const Color(0xFF94A3B8),
-              ),
-            ),
-        ],
       ),
     );
   }
