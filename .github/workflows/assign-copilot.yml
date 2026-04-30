@@ -1,0 +1,15 @@
+name: Auto Request Copilot Review
+on:
+  pull_request:
+    branches:
+      - develop  # Uniquement pour les PR ciblant cette branche
+    types: [opened, ready_for_review]
+
+jobs:
+  request-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request Copilot Review
+        run: gh pr edit ${{ github.event.pull_request.number }} --add-reviewer "github-copilot"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
