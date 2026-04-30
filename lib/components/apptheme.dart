@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // ── Brand ─────────────────────────────────────────────────────────────────
+  // ── Brand 
   static const Color primary = Color(0xFF092C4C);   // navy
   static const Color secondary = Color(0xFFF2994A); // orange
 
@@ -18,7 +18,7 @@ class AppColors {
   static const Color gray4 = Color(0xFFBDBDBD);
   static const Color white = Color(0xFFFFFFFF);
 
-  // ── Backgrounds ───────────────────────────────────────────────────────────
+  // ── Backgrounds 
   static const Color bgPrimary = Color(0xFFF4F4F4); // écran
   static const Color bgCard    = Color(0xFFFFFFFF); // cartes
 
@@ -30,7 +30,7 @@ class AppColors {
   static const Color textMuted     = gray4;
   static const Color progressBg    = gray4;
 
-  // ── Ombre carte ───────────────────────────────────────────────────────────
+  // ── Ombre carte 
   static List<BoxShadow> get cardShadow => [
         BoxShadow(
           color: Colors.black.withOpacity(0.08),

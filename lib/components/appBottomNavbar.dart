@@ -13,11 +13,11 @@ class AppBottomNavBar extends StatelessWidget {
   });
 
   static const _icons = [
-    Icons.home_rounded,
-    Icons.calendar_month,
-    Icons.bar_chart_rounded,
-    Icons.notifications_rounded,
-    Icons.person_rounded,
+    Icons.grid_view_rounded,
+    Icons.calendar_month_outlined,
+    Icons.school_outlined,
+    Icons.assignment_outlined,
+    Icons.person_outline,
   ];
 
   @override
