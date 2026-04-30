@@ -37,8 +37,8 @@ class BottomNavBar extends StatelessWidget {
           label: 'Devoirs',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.calendar_month_outlined),
-          label: 'Emploi',
+          icon: Icon(Icons.school_outlined),
+          label: 'Matières',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),

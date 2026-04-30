@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:syndory_etudiant/components/appBottomNavbar.dart'; // ✅ import
-import '../../features/calendar/calendar_data.dart';
-import '../../features/calendar/calendar_widgets.dart';
+import 'package:syndory_etudiant/components/appBottomNavbar.dart';
+import 'package:syndory_etudiant/components/apptheme.dart';
+import 'calendar_data.dart';
+import 'calendar_widgets.dart';
 
 class CalendarPage extends StatefulWidget {
   final int navIndex;
@@ -19,11 +20,33 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
+  bool _isLoading = true;
+  bool _hasLoaded = false;
   int _viewIndex = 1;
   SubjectTag _selectedTag = SubjectTag.all;
   DateTime _weekStart = DateTime(2024, 10, 14);
 
-  final List<CourseModel> _allCourses = getMockData();
+  List<CourseModel> _allCourses = [];
+
+  // Déclenché quand l'onglet calendar devient actif (IndexedStack passe navIndex=1)
+  @override
+  void didUpdateWidget(CalendarPage old) {
+    super.didUpdateWidget(old);
+    if (widget.navIndex == 1 && !_hasLoaded) {
+      _loadData();
+    }
+  }
+
+  Future<void> _loadData() async {
+    // Remplacer par un appel API réel quand le backend sera disponible
+    await Future.delayed(const Duration(milliseconds: 1500));
+    if (!mounted) return;
+    setState(() {
+      _allCourses = getMockData();
+      _isLoading = false;
+      _hasLoaded = true;
+    });
+  }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -76,14 +99,16 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.bgPrimary,
       appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          _buildTopControls(),
-          Expanded(child: _buildBody()),
-        ],
-      ),
+      body: _isLoading
+          ? const CalendarLoadingSkeleton()
+          : Column(
+              children: [
+                _buildTopControls(),
+                Expanded(child: _buildBody()),
+              ],
+            ),
       // ✅ Remplace le BottomNavigationBar hardcodé par le composant partagé
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: widget.navIndex,
