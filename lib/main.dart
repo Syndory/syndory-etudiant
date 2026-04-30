@@ -46,19 +46,32 @@ class _AppShellState extends State<AppShell> {
         children: [
           DashboardPage(navIndex: _currentIndex, onNavTap: _onNavTap),
           CalendarPage(navIndex: _currentIndex, onNavTap: _onNavTap),
+           _PlaceholderPage(
+            label: 'Absences',
+            icon: Icons.person_off,
+            navIndex: _currentIndex,
+            onNavTap: _onNavTap,
+          ),
           _AttendanceTab(navIndex: _currentIndex, onNavTap: _onNavTap),
           _PlaceholderPage(
-            label: 'Notifications',
-            icon: Icons.notifications_rounded,
+            label: 'Annonce',
+            icon: Icons.campaign_rounded,
+            navIndex: _currentIndex,
+            onNavTap: _onNavTap,
+          ),
+          _PlaceholderPage(
+            label: 'Mes cours',
+            icon: Icons.menu_book,
             navIndex: _currentIndex,
             onNavTap: _onNavTap,
           ),
           _PlaceholderPage(
             label: 'Profil',
-            icon: Icons.person_rounded,
+            icon: Icons.person,
             navIndex: _currentIndex,
             onNavTap: _onNavTap,
           ),
+           
         ],
       ),
     );
