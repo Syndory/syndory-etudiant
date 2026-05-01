@@ -11,7 +11,7 @@ class DevoirsScreen extends StatefulWidget {
 
   const DevoirsScreen({
     super.key,
-    this.navIndex = 3,
+    this.navIndex = 0,
     this.onNavTap,
   });
 

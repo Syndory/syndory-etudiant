@@ -29,7 +29,6 @@ Widget build(BuildContext context) {
   final nextCourse = MockData.nextCourse;
   final user = MockData.currentUser;
 
-  // ✅ Plus de Scaffold ici — retourne directement le contenu
   return Column(
     children: [
       Expanded(
@@ -60,7 +59,6 @@ Widget build(BuildContext context) {
           ],
         ),
       ),
-      // ✅ NavBar en bas de la colonne
       AppBottomNavBar(
         currentIndex: widget.navIndex,
         onTap: widget.onNavTap,
