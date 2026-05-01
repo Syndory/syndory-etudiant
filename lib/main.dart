@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
       // On affiche directement notre page de tableau de bord
-      //home: const DashboardPage(),
+      home: const DashboardPage(),
       //home: CalendarPage(),
 
     );

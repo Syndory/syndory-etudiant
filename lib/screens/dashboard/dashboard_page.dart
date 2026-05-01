@@ -1,119 +1,165 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/dashboard_mock_data.dart';
-import 'package:syndory_etudiant/components/dashboard/active_session_banner.dart';
+import 'package:syndory_etudiant/components/dashboard/header.dart';
+import 'package:syndory_etudiant/components/dashboard/main_navigation_bar.dart';
 import 'package:syndory_etudiant/components/dashboard/next_course_card.dart';
+import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
 import 'package:syndory_etudiant/components/dashboard/timetable_section.dart';
+import 'package:syndory_etudiant/components/dashboard/active_session_banner.dart';
+import 'package:syndory_etudiant/components/dashboard/empty_state_day_off.dart';
 import 'package:syndory_etudiant/components/dashboard/stats_grid_section.dart';
 import 'package:syndory_etudiant/components/dashboard/announcements_section.dart';
 import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
-import 'package:syndory_etudiant/components/dashboard/main_navigation_bar.dart';
-
+import 'package:syndory_etudiant/components/dashboard/next_course_card.dart';
+import '../notification/notifications_screen.dart'; 
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Récupération des données depuis le fichier MockData
-    final activeSession = MockData.activeSession;
-    final nextCourse = MockData.nextCourse;
-    final user = MockData.currentUser;
+    // simulation : change à 'true' pour voir la bannière de cours clignotante
+    bool hasClassToday = false; 
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFFBFBFB),
       body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            // 1. Header (Profil utilisateur dynamique)
-            _buildHeader(user),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. HEADER AVEC NAVIGATION VERS NOTIFICATIONS
+              _buildHeader(context),
 
-            // 2. Banner Session Active (Conditionnelle)
-            // Affiche le bandeau seulement si 'activeSession' n'est pas null
-            if (activeSession != null) 
-              const ActiveSessionBanner(),
+              // 2. ZONE DYNAMIQUE (COURS VS REPOS)
+              if (hasClassToday) ...[
+                const ActiveSessionBanner(), // Ton composant pixel-perfect clignotant
+                const NextCourseCard(), 
+              ] else 
+                const EmptyStateDayOff(), // Le composant avec le cornet de fête
 
-            // 3. Section "À suivre"
-            // Ne s'affiche que s'il y a un prochain cours prévu
-            if (nextCourse != null) ...[
+              // 3. SECTIONS PERMANENTES
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  children: [
+                    Expanded(child: _PlaceholderStats(title: "PRÉSENCE", value: "85%")),
+                    SizedBox(width: 15),
+                    Expanded(child: _PlaceholderStats(title: "DEVOIRS", value: "3")),
+                  ],
+                ),
+              ),
+
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
                 child: Text(
-                  'À suivre',
+                  "Annonces",
                   style: TextStyle(
-                    fontSize: 20, 
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF052A36),
+                    fontSize: 18, 
+                    fontWeight: FontWeight.bold, 
+                    color: Color(0xFF052A36)
                   ),
                 ),
               ),
-              NextCourseCard(courseData: nextCourse),
+              const AnnouncementsSection(),
+
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
+                child: Text(
+                  "Documents récents",
+                  style: TextStyle(
+                    fontSize: 18, 
+                    fontWeight: FontWeight.bold, 
+                    color: Color(0xFF052A36)
+                  ),
+                ),
+              ),
+              const RecentDocumentsSection(),
+              
+              const SizedBox(height: 30),
             ],
-
-            // 4. Emploi du temps (Carrousel horizontal)
-            const TimetableSection(),
-
-            // 5. Grille de Statistiques (Présence & Devoirs)
-            // Utilise les compteurs venant des MockData
-            const StatsGridSection(),
-
-            // 6. Dernières annonces
-            // Le composant gère l'affichage des 2 dernières[cite: 1]
-            const AnnouncementsSection(),
-
-            // 7. Documents récents
-            // Liste des 3 derniers documents[cite: 1]
-            const RecentDocumentsSection(),
-
-            // Espacement pour la navigation basse
-            const SizedBox(height: 30),
-          ],
+          ),
         ),
       ),
-      // 8. Barre de navigation basse (5 destinations)[cite: 1]
-      bottomNavigationBar: const MainNavigationBar(currentIndex: 0),
+      bottomNavigationBar: const MainNavigationBar(),
     );
   }
 
-  // Header intégré pour l'exemple, à extraire si besoin
-  Widget _buildHeader(Map<String, dynamic> user) {
+  // HEADER AVEC ACTION DE NOTIFICATION
+  Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CircleAvatar(
-            radius: 25,
-            backgroundColor: Colors.orange[100],
-            child: const Icon(Icons.person, color: Color(0xFFF06424)),
-          ),
-          const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Text(
-                "Bonjour, ${user['nom']}",
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              const CircleAvatar(
+                radius: 25,
+                backgroundColor: Color(0xFFE9F0FF),
+                child: Icon(Icons.person, color: Color(0xFF052A36)),
               ),
-              Text(
-                user['filiere'],
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Syndory",
+                    style: TextStyle(
+                      color: Color(0xFFF06424), // Orange Syndory
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 18
+                    ),
+                  ),
+                  Text(
+                    "Bonjour, Kwame", 
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14)
+                  ),
+                ],
               ),
             ],
           ),
-          const Spacer(),
-          // Badge "Responsable" si le rôle le permet[cite: 1]
-          if (user['role'] == 'responsable')
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF052A36),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: const Text(
-                "Responsable",
-                style: TextStyle(color: Colors.white, fontSize: 10),
-              ),
+          // BOUTON NOTIFICATION
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+              );
+            },
+            icon: const Icon(
+              Icons.notifications_none_rounded, 
+              size: 28, 
+              color: Color(0xFF667A81)
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Simple Placeholder pour compiler sans erreurs si tes sections ne sont pas prêtes
+class _PlaceholderStats extends StatelessWidget {
+  final String title;
+  final String value;
+  const _PlaceholderStats({required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      height: 160,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black.withOpacity(0.05)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          const SizedBox(height: 10),
+          Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         ],
       ),
     );
