@@ -143,6 +143,18 @@ class _PlaceholderPage extends StatelessWidget {
         currentIndex: navIndex,
         onTap: onNavTap,
       ),
+      title: 'Tableau de Bord Étudiant',
+      debugShowCheckedModeBanner: false, // Enlève la petite bannière "Debug"
+      theme: ThemeData(
+        // On utilise un thème clair et propre
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFF06424)),
+        useMaterial3: true,
+        scaffoldBackgroundColor: Colors.white,
+      ),
+      // On affiche directement notre page de tableau de bord
+      home: const DashboardPage(),
+      //home: CalendarPage(),
+
     );
   }
 }
