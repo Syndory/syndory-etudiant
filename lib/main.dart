@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/AppBottomNavbar.dart';
+import 'package:provider/provider.dart';
+import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
 import 'package:syndory_etudiant/screens/attendance/attendanceScreen.dart';
 import 'package:syndory_etudiant/screens/attendance/emptyAttendanceScreen.dart';
-import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';   
+import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';
 import 'package:syndory_etudiant/screens/calendar/calendar_page.dart';
 import 'package:syndory_etudiant/screens/devoir/devoirs_screen.dart';
 import 'package:syndory_etudiant/screens/justificatif/justificatifs_tab.dart';
 import 'package:syndory_etudiant/screens/matieres/matieres_screen.dart';
 import 'package:syndory_etudiant/screens/resources/resources_page.dart';
+import 'package:syndory_etudiant/screens/profil/profile_page.dart';
+import 'package:syndory_etudiant/profile/controllers/profile_controller.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,11 +22,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Syndory Étudiant',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const AppShell(),
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => ProfileController())],
+      child: MaterialApp(
+        title: 'Syndory Étudiant',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: const AppShell(),
+      ),
     );
   }
 }
@@ -42,7 +48,7 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-  return Scaffold(
+    return Scaffold(
       backgroundColor: AppColors.bgPrimary,
       body: IndexedStack(
         index: _currentIndex,
@@ -54,12 +60,12 @@ class _AppShellState extends State<AppShell> {
           MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
           DevoirsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
           ResourcesPage(navIndex: _currentIndex, onNavTap: _onNavTap),
+          ProfilePage(navIndex: _currentIndex, onNavTap: _onNavTap),
         ],
       ),
     );
   }
 }
-
 
 /// Onglet Assiduité : bascule entre écran vide et écran rempli.
 class _AttendanceTab extends StatefulWidget {
@@ -91,4 +97,3 @@ class _AttendanceTabState extends State<_AttendanceTab> {
     );
   }
 }
-
