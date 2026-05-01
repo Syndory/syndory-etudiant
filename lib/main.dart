@@ -92,3 +92,44 @@ class _AttendanceTabState extends State<_AttendanceTab> {
   }
 }
 
+/// Placeholder pour les onglets non encore implémentés.
+class _PlaceholderPage extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final int navIndex;
+  final ValueChanged<int> onNavTap;
+
+  const _PlaceholderPage({
+    required this.label,
+    required this.icon,
+    required this.navIndex,
+    required this.onNavTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bgPrimary,
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: AppColors.textMuted, size: 48),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: navIndex,
+        onTap: onNavTap,
+      ),
+    );
+  }
+}

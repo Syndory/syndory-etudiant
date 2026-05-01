@@ -3,7 +3,10 @@ import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/mocks/dashboardMockData.dart';
 import 'package:syndory_etudiant/components/dashboard/active_session_banner.dart';
 import 'package:syndory_etudiant/components/dashboard/next_course_card.dart';
+import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
 import 'package:syndory_etudiant/components/dashboard/timetable_section.dart';
+import 'package:syndory_etudiant/components/dashboard/active_session_banner.dart';
+import 'package:syndory_etudiant/components/dashboard/empty_state_day_off.dart';
 import 'package:syndory_etudiant/components/dashboard/stats_grid_section.dart';
 import 'package:syndory_etudiant/components/dashboard/announcements_section.dart';
 import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
@@ -40,8 +43,19 @@ Widget build(BuildContext context) {
             if (nextCourse != null) ...[
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Row(
+                  children: [
+                    Expanded(child: _PlaceholderStats(title: "PRÉSENCE", value: "85%")),
+                    SizedBox(width: 15),
+                    Expanded(child: _PlaceholderStats(title: "DEVOIRS", value: "3")),
+                  ],
+                ),
+              ),
+
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
                 child: Text(
-                  'À suivre',
+                  "Annonces",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -49,7 +63,22 @@ Widget build(BuildContext context) {
                   ),
                 ),
               ),
-              NextCourseCard(courseData: nextCourse),
+              const AnnouncementsSection(),
+
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
+                child: Text(
+                  "Documents récents",
+                  style: TextStyle(
+                    fontSize: 18, 
+                    fontWeight: FontWeight.bold, 
+                    color: Color(0xFF052A36)
+                  ),
+                ),
+              ),
+              const RecentDocumentsSection(),
+              
+              const SizedBox(height: 30),
             ],
             const TimetableSection(),
             const StatsGridSection(),
@@ -69,26 +98,34 @@ Widget build(BuildContext context) {
 
   Widget _buildHeader(Map<String, dynamic> user) {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CircleAvatar(
-            radius: 25,
-            backgroundColor: Colors.orange[100],
-            child: const Icon(Icons.person, color: Color(0xFFF06424)),
-          ),
-          const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
               Text(
                 "Bonjour, ${user['nom']}",
                 style: const TextStyle(
                     fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              Text(
-                user['filiere'],
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Syndory",
+                    style: TextStyle(
+                      color: Color(0xFFF06424), // Orange Syndory
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 18
+                    ),
+                  ),
+                  Text(
+                    "Bonjour, Kwame", 
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14)
+                  ),
+                ],
               ),
             ],
           ),
@@ -106,6 +143,35 @@ Widget build(BuildContext context) {
                 style: TextStyle(color: Colors.white, fontSize: 10),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Simple Placeholder pour compiler sans erreurs si tes sections ne sont pas prêtes
+class _PlaceholderStats extends StatelessWidget {
+  final String title;
+  final String value;
+  const _PlaceholderStats({required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      height: 160,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.black.withOpacity(0.05)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          const SizedBox(height: 10),
+          Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         ],
       ),
     );
