@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/screens/matieres/matiere_detail_screen.dart';
 
 /// Carte représentant une matière.
 class MatiereCard extends StatelessWidget {
@@ -32,8 +33,22 @@ class MatiereCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MatiereDetailScreen(
+              nom: nom,
+              prof: prof,
+              assiduite: assiduite,
+              progression: progression,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.bgCard,
@@ -148,6 +163,7 @@ class MatiereCard extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

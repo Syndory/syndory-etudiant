@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:syndory_etudiant/screens/matieres/matiere_detail_screen.dart';
 import 'calendar_data.dart';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -344,9 +345,23 @@ class CourseCard extends StatelessWidget {
     final isAbsent = course.type == CourseType.absent;
     final isExam   = course.type == CourseType.exam;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MatiereDetailScreen(
+              nom: course.title,
+              prof: course.professor,
+              assiduite: 0.85,
+              progression: 0.92,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
         color: isExam
             ? kRedLight
             : isAbsent
@@ -424,6 +439,7 @@ class CourseCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
