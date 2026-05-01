@@ -15,7 +15,6 @@ class AppBottomNavBar extends StatelessWidget {
     Icons.menu_book_rounded, // Mes Matières / Cours
     Icons.campaign_rounded,
     Icons.campaign_rounded, // Annonces / Flash info
-    Icons.person_rounded, // Profil
   ];
 
   @override
