@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/components/appTheme.dart';
 
 
 class AppBottomNavBar extends StatelessWidget {

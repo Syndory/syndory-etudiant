@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/components/appTheme.dart';
 
 // ─── Zone vide : tirets + invite à cliquer ────────────────────────────────────
 class FileUploadZoneEmpty extends StatelessWidget {

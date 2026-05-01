@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/AppBottomNavbar.dart';
-import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/components/appBottomNavbar.dart';
+import 'package:syndory_etudiant/components/appTheme.dart';
 import 'package:syndory_etudiant/screens/attendance/attendanceScreen.dart';
 import 'package:syndory_etudiant/screens/attendance/emptyAttendanceScreen.dart';
 import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';   
