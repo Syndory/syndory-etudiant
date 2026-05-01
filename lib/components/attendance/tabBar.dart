@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/appTheme.dart';
+import 'package:syndory_etudiant/components/apptheme.dart';
 import 'package:syndory_etudiant/models/periodModel.dart';
-
 
 /// Barre d'onglets pour choisir la période (Semaine / Mois / Semestre).
 class PeriodTabBar extends StatelessWidget {
@@ -25,11 +24,13 @@ class PeriodTabBar extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: AttendancePeriod.values
-            .map((period) => _TabItem(
-                  label: period.label,
-                  isSelected: selected == period,
-                  onTap: () => onChanged(period),
-                ))
+            .map(
+              (period) => _TabItem(
+                label: period.label,
+                isSelected: selected == period,
+                onTap: () => onChanged(period),
+              ),
+            )
             .toList(),
       ),
     );

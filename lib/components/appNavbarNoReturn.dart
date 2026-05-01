@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/screens/notification/notifications_screen.dart';
-import 'package:syndory_etudiant/screens/profil/profile_page.dart';
 
 class AppNavBarNoReturn extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? avatarUrl;
 
+  //Callback optionnel : appelé quand on tape sur l'avatar
+  // Si null, le tap ne fait rien (rétrocompatible avec les autres pages)
+  final VoidCallback? onProfileTap;
+
   const AppNavBarNoReturn({
     super.key,
     required this.title,
     this.avatarUrl,
+    this.onProfileTap, //optionnel → pas besoin de tout modifier
   });
 
   @override
@@ -19,26 +23,22 @@ class AppNavBarNoReturn extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.white,
-      elevation: 0.5, // Une légère ombre pour détacher du contenu
+      elevation: 0.5,
       automaticallyImplyLeading: false,
-      
+
       // --- PARTIE GAUCHE : AVATAR (PROFIL) ---
       leading: Padding(
         padding: const EdgeInsets.only(left: 12),
         child: Center(
           child: GestureDetector(
-            onTap: () {
-              // Navigation directe vers le profil
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
-            },
+            // Utilise le callback si fourni, sinon ne fait rien
+            onTap: onProfileTap,
             child: CircleAvatar(
               radius: 18,
-              backgroundColor: const Color(0xFFFFE0D3), // Orange très clair
-              backgroundImage:
-                  avatarUrl != null ? NetworkImage(avatarUrl!) : null,
+              backgroundColor: const Color(0xFFFFE0D3),
+              backgroundImage: avatarUrl != null
+                  ? NetworkImage(avatarUrl!)
+                  : null,
               child: avatarUrl == null
                   ? const Icon(Icons.person, color: Color(0xFFF06424), size: 20)
                   : null,
@@ -51,7 +51,7 @@ class AppNavBarNoReturn extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         title,
         style: const TextStyle(
-          color: Color(0xFF052A36), // Ton bleu nuit
+          color: Color(0xFF052A36),
           fontWeight: FontWeight.bold,
           fontSize: 18,
         ),
@@ -66,10 +66,11 @@ class AppNavBarNoReturn extends StatelessWidget implements PreferredSizeWidget {
             color: Color(0xFF052A36),
           ),
           onPressed: () {
-            // Navigation directe vers les notifications
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+              MaterialPageRoute(
+                builder: (context) => const NotificationsScreen(),
+              ),
             );
           },
         ),
