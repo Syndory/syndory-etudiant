@@ -10,13 +10,9 @@ import '../../components/appBottomNavbar.dart';
 
 class ProfilePage extends StatelessWidget {
   final int navIndex;
-  final ValueChanged<int> onNavTap;
+  final ValueChanged<int>? onNavTap;
 
-  const ProfilePage({
-    super.key,
-    required this.navIndex,
-    required this.onNavTap,
-  });
+  const ProfilePage({super.key, this.navIndex = 0, this.onNavTap});
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +45,6 @@ class ProfilePage extends StatelessWidget {
           child: Container(color: const Color(0xFFF0F0F0), height: 1),
         ),
       ),
-
-      // ─── Bottom Navigation Bar (même logique que les autres pages) ─
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: navIndex,
-        onTap: onNavTap,
-      ),
-
       // ─── Body ──────────────────────────────────────────────────────
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -227,7 +216,7 @@ class ProfilePage extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => onNavTap(3),
+                onPressed: () => onNavTap?.call(3),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFD5E02),
                   elevation: 0,

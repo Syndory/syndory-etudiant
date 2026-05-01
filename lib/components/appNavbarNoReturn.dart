@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syndory_etudiant/screens/notification/notifications_screen.dart';
+import 'package:syndory_etudiant/screens/profil/profile_page.dart';
+import 'package:syndory_etudiant/profile/controllers/profile_controller.dart';
 
 class AppNavBarNoReturn extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? avatarUrl;
 
-  //Callback optionnel : appelé quand on tape sur l'avatar
-  // Si null, le tap ne fait rien (rétrocompatible avec les autres pages)
-  final VoidCallback? onProfileTap;
-
-  const AppNavBarNoReturn({
-    super.key,
-    required this.title,
-    this.avatarUrl,
-    this.onProfileTap, //optionnel → pas besoin de tout modifier
-  });
+  const AppNavBarNoReturn({super.key, required this.title, this.avatarUrl});
 
   @override
   Size get preferredSize => const Size.fromHeight(56);
@@ -26,13 +20,20 @@ class AppNavBarNoReturn extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0.5,
       automaticallyImplyLeading: false,
 
-      // --- PARTIE GAUCHE : AVATAR (PROFIL) ---
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 12),
-        child: Center(
-          child: GestureDetector(
-            // Utilise le callback si fourni, sinon ne fait rien
-            onTap: onProfileTap,
+      leading: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider.value(
+              value: context.read<ProfileController>(),
+              child: ProfilePage(navIndex: 7, onNavTap: (index) {}),
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Center(
             child: CircleAvatar(
               radius: 18,
               backgroundColor: const Color(0xFFFFE0D3),
@@ -47,7 +48,6 @@ class AppNavBarNoReturn extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
 
-      // --- TITRE ---
       title: Text(
         title,
         style: const TextStyle(
@@ -58,21 +58,16 @@ class AppNavBarNoReturn extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
 
-      // --- PARTIE DROITE : NOTIFICATIONS ---
       actions: [
         IconButton(
           icon: const Icon(
             Icons.notifications_none_rounded,
             color: Color(0xFF052A36),
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NotificationsScreen(),
-              ),
-            );
-          },
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          ),
         ),
         const SizedBox(width: 8),
       ],

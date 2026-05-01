@@ -60,7 +60,6 @@ class _AppShellState extends State<AppShell> {
           MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
           DevoirsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
           ResourcesPage(navIndex: _currentIndex, onNavTap: _onNavTap),
-          ProfilePage(navIndex: _currentIndex, onNavTap: _onNavTap),
         ],
       ),
     );

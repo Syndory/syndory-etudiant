@@ -9,11 +9,7 @@ class DevoirsScreen extends StatefulWidget {
   final int navIndex;
   final ValueChanged<int>? onNavTap;
 
-  const DevoirsScreen({
-    super.key,
-    this.navIndex = 0,
-    this.onNavTap,
-  });
+  const DevoirsScreen({super.key, this.navIndex = 0, this.onNavTap});
 
   @override
   State<DevoirsScreen> createState() => _DevoirsScreenState();
