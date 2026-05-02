@@ -14,7 +14,7 @@ class RecentDocumentsSection extends StatelessWidget {
           const Row(
             children: [
               Icon(Icons.description_outlined, color: Colors.blueGrey, size: 22),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 'Documents récents',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

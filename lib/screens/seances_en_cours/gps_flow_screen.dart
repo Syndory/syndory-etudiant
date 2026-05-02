@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../components/seances_en_cours/course_info_card.dart';
-import '../../components/seances_en_cours/countdown_timer.dart';
-import '../../components/seances_en_cours/gps_search_view.dart';
 import 'presence_confirmed_screen.dart';
 import 'location_error_screen.dart';
 

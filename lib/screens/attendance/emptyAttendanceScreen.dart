@@ -20,7 +20,7 @@ class EmptyAttendanceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
-      appBar: AppNavBarNoReturn(title: 'Assiduité'),
+      appBar: AppNavBarNoReturn(title: 'Assiduité', onNotificationPressed: () {  },),
       // SingleChildScrollView évite le RenderFlex overflow sur petits écrans
       body: SafeArea(
         child: SingleChildScrollView(

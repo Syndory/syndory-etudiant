@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../components/seances_en_cours/course_info_card.dart';
-import 'gps_flow_screen.dart';
 
 
 class LocationErrorScreen extends StatelessWidget {

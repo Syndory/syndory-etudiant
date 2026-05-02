@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
 
-
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int>? onTap;
 
-  const AppBottomNavBar({
-    super.key,
-    required this.currentIndex,
-    this.onTap,
-  });
+  const AppBottomNavBar({super.key, required this.currentIndex, this.onTap});
 
   static const _icons = [
-  Icons.home_rounded,            // Accueil
-  Icons.calendar_month_rounded,  // Calendrier
-  Icons.person_off_rounded,      // Absences (Icone explicite pour l'absence)
-  Icons.fact_check_rounded,      // Assiduité (Checklist de présence)
-  Icons.menu_book_rounded,       // Mes Matières / Cours
-  Icons.campaign_rounded,        // Annonces / Flash info
-  Icons.person_rounded,          // Profil
-];
+    Icons.home_rounded, // Accueil
+    Icons.calendar_month_rounded, // Calendrier
+    Icons.person_off_rounded, // Absences (Icone explicite pour l'absence)
+    Icons.fact_check_rounded, // Assiduité (Checklist de présence)
+    Icons.menu_book_rounded, // Mes Matières / Cours
+    Icons.campaign_rounded,
+    Icons.campaign_rounded, // Annonces / Flash info
+  ];
 
   @override
   Widget build(BuildContext context) {

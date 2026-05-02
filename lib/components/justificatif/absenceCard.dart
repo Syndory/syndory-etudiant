@@ -17,10 +17,11 @@ class AbsenceCard extends StatelessWidget {
       ),
       child: IntrinsicHeight(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Bordure gauche orange
+            // ── Bordure gauche orange ──────────────────────────────────
             Container(
-              width: 4,
+              width: 5,
               decoration: const BoxDecoration(
                 color: AppColors.secondary,
                 borderRadius: BorderRadius.only(
@@ -29,22 +30,30 @@ class AbsenceCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Icône calendrier
-            Container(
-              margin: const EdgeInsets.all(14),
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.info.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.calendar_month_rounded,
-                color: AppColors.info,
-                size: 20,
+
+            const SizedBox(width: 12),
+
+            // ── Icône calendrier ───────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F0FE), // bleu clair comme dans l'image
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.calendar_month_rounded,
+                  color: Color(0xFF5B8DEF), // bleu doux
+                  size: 20,
+                ),
               ),
             ),
-            // Infos cours
+
+            const SizedBox(width: 12),
+
+            // ── Infos cours ────────────────────────────────────────────
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 14),
@@ -74,6 +83,7 @@ class AbsenceCard extends StatelessWidget {
                 ),
               ),
             ),
+
             const SizedBox(width: 14),
           ],
         ),

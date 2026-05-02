@@ -13,7 +13,7 @@ class DevoirsBody extends StatelessWidget {
   final ValueChanged<int>? onTabChanged;
   final List<Map<String, dynamic>> devoirs;
 
-  const DevoirsBody({
+  const DevoirsBody({super.key, 
     this.activeTab = 0,
     this.onTabChanged,
     required this.devoirs,
@@ -81,7 +81,7 @@ class DevoirsBody extends StatelessWidget {
               : ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   itemCount: devoirsFiltres.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final d = devoirsFiltres[index];
                     return DevoirCard(

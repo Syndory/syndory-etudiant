@@ -8,7 +8,7 @@ import 'package:syndory_etudiant/components/attendance/progressring.dart';
 import 'package:syndory_etudiant/components/attendance/tabBar.dart';
 import 'package:syndory_etudiant/mocks/attendanceMock.dart';
 import 'package:syndory_etudiant/models/periodModel.dart';
-
+import 'package:syndory_etudiant/screens/notification/notifications_screen.dart'; // Import indispensable
 
 class AttendanceScreen extends StatefulWidget {
   final int navIndex;
@@ -33,7 +33,19 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
-      appBar: AppNavBarNoReturn(title: 'Assiduité'),
+      // CONFIGURATION DE LA NAVBAR ICI
+      appBar: AppNavBarNoReturn(
+        title: 'Assiduité',
+        onNotificationPressed: () {
+          print("Tentative de navigation vers Notifications");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NotificationsScreen(),
+            ),
+          );
+        },
+      ),
       body: SafeArea(
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 350),
@@ -63,7 +75,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ),
     );
   }
-
 }
 
 class _AttendanceBody extends StatelessWidget {

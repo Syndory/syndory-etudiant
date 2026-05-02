@@ -13,7 +13,7 @@ class JustificatifsTab extends StatelessWidget {
     super.key,
     required this.navIndex,
     required this.onNavTap,
-    this.pendingAbsences = const [],
+    this.pendingAbsences = const [mockAbsenceEnAttente],
   });
 
   @override

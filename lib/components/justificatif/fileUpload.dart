@@ -1,7 +1,31 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
 
-// ─── Zone vide : tirets + invite à cliquer ────────────────────────────────────
+// ─── Modèle fichier sélectionné ───────────────────────────────────────────────
+class PickedFile {
+  final String name;
+  final String size; // formaté ex: "1.2 MB"
+  final String path;
+  final File file;
+
+  const PickedFile({
+    required this.name,
+    required this.size,
+    required this.path,
+    required this.file,
+  });
+}
+
+// ─── Helper format taille ─────────────────────────────────────────────────────
+String _formatSize(int bytes) {
+  if (bytes < 1024) return '$bytes B';
+  if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+  return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+}
+
+// ─── Zone vide : invite à choisir un fichier ─────────────────────────────────
 class FileUploadZoneEmpty extends StatelessWidget {
   final VoidCallback? onTap;
 
@@ -17,10 +41,7 @@ class FileUploadZoneEmpty extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.gray4,
-            width: 1.5,
-          ),
+          border: Border.all(color: AppColors.gray4, width: 1.5),
           boxShadow: AppColors.cardShadow,
         ),
         child: Column(
@@ -65,17 +86,15 @@ class FileUploadZoneEmpty extends StatelessWidget {
   }
 }
 
-// ─── Fichier sélectionné avec progression ─────────────────────────────────────
+// ─── Fichier sélectionné avec barre de progression réelle ────────────────────
 class FileUploadZoneUploading extends StatelessWidget {
-  final String fileName;
-  final String fileSize;
-  final double progress; // 0.0 – 1.0
+  final PickedFile pickedFile;
+  final double progress; // 0.0 – 1.0 fourni par l'appelant
   final VoidCallback? onCancel;
 
   const FileUploadZoneUploading({
     super.key,
-    required this.fileName,
-    required this.fileSize,
+    required this.pickedFile,
     required this.progress,
     this.onCancel,
   });
@@ -94,7 +113,7 @@ class FileUploadZoneUploading extends StatelessWidget {
         children: [
           Row(
             children: [
-              // Icône PDF orange
+              // Icône selon type de fichier
               Container(
                 width: 40,
                 height: 40,
@@ -102,20 +121,21 @@ class FileUploadZoneUploading extends StatelessWidget {
                   color: AppColors.secondary.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
-                  Icons.picture_as_pdf_rounded,
+                child: Icon(
+                  _iconForFile(pickedFile.name),
                   color: AppColors.secondary,
                   size: 22,
                 ),
               ),
               const SizedBox(width: 12),
-              // Nom + taille
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      fileName,
+                      pickedFile.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontFamily: 'Inter',
                         color: AppColors.primary,
@@ -125,7 +145,7 @@ class FileUploadZoneUploading extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      fileSize,
+                      pickedFile.size,
                       style: const TextStyle(
                         fontFamily: 'Inter',
                         color: AppColors.gray3,
@@ -135,7 +155,6 @@ class FileUploadZoneUploading extends StatelessWidget {
                   ],
                 ),
               ),
-              // Pourcentage
               Text(
                 '${(progress * 100).round()}%',
                 style: const TextStyle(
@@ -148,7 +167,6 @@ class FileUploadZoneUploading extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          // Barre de progression
           ClipRRect(
             borderRadius: BorderRadius.circular(100),
             child: LinearProgressIndicator(
@@ -160,7 +178,6 @@ class FileUploadZoneUploading extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          // Lien annuler
           GestureDetector(
             onTap: onCancel,
             child: const Row(
@@ -169,7 +186,7 @@ class FileUploadZoneUploading extends StatelessWidget {
                 Icon(Icons.close, size: 14, color: AppColors.gray3),
                 SizedBox(width: 4),
                 Text(
-                  'Annuler l\'envoi',
+                  "Annuler l'envoi",
                   style: TextStyle(
                     fontFamily: 'Inter',
                     color: AppColors.gray3,
@@ -184,4 +201,87 @@ class FileUploadZoneUploading extends StatelessWidget {
       ),
     );
   }
+
+  IconData _iconForFile(String name) {
+    final ext = name.split('.').last.toLowerCase();
+    if (ext == 'pdf') return Icons.picture_as_pdf_rounded;
+    if (['jpg', 'jpeg', 'png'].contains(ext)) return Icons.image_rounded;
+    return Icons.insert_drive_file_rounded;
+  }
+}
+
+// ─── Service de sélection de fichier ─────────────────────────────────────────
+/// Appelle le picker natif et retourne un [PickedFile] ou null si annulé.
+Future<PickedFile?> pickJustificatifFile() async {
+  final result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+    allowMultiple: false,
+  );
+
+  if (result == null || result.files.isEmpty) return null;
+
+  final pf = result.files.first;
+  if (pf.path == null) return null;
+
+  final file = File(pf.path!);
+  final sizeBytes = await file.length();
+
+  return PickedFile(
+    name: pf.name,
+    size: _formatSize(sizeBytes),
+    path: pf.path!,
+    file: file,
+  );
+}
+
+// ─── Service d'upload ─────────────────────────────────────────────────────────
+/// À brancher sur ton backend.
+/// [onProgress] est appelé avec une valeur entre 0.0 et 1.0.
+///
+/// Exemple avec dio :
+/// ```dart
+/// final dio = Dio();
+/// final formData = FormData.fromMap({
+///   'file': await MultipartFile.fromFile(file.path, filename: fileName),
+///   'absenceId': absenceId,
+///   'commentaire': commentaire,
+/// });
+/// await dio.post(
+///   '/api/justificatifs',
+///   data: formData,
+///   onSendProgress: (sent, total) => onProgress(sent / total),
+/// );
+/// ```
+typedef UploadProgressCallback = void Function(double progress);
+
+Future<void> uploadJustificatif({
+  required PickedFile pickedFile,
+  required String absenceId,
+  String? commentaire,
+  required UploadProgressCallback onProgress,
+}) async {
+  // ── SIMULATION ──────────────────────────────────────────────────────────────
+  // Remplace ce bloc par ton appel HTTP réel (dio, http, etc.)
+  for (int i = 1; i <= 10; i++) {
+    await Future.delayed(const Duration(milliseconds: 200));
+    onProgress(i / 10);
+  }
+  // ── FIN SIMULATION ───────────────────────────────────────────────────────────
+
+  // ── EXEMPLE RÉEL avec dio (décommente quand tu as le backend) ───────────────
+  // final dio = Dio();
+  // final formData = FormData.fromMap({
+  //   'file': await MultipartFile.fromFile(
+  //     pickedFile.path,
+  //     filename: pickedFile.name,
+  //   ),
+  //   'absenceId': absenceId,
+  //   if (commentaire != null) 'commentaire': commentaire,
+  // });
+  // await dio.post(
+  //   'https://ton-api.com/api/justificatifs',
+  //   data: formData,
+  //   onSendProgress: (sent, total) => onProgress(sent / total),
+  // );
 }

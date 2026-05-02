@@ -8,8 +8,7 @@ import 'package:syndory_etudiant/components/justificatif/historiqueItem.dart';
 import 'package:syndory_etudiant/components/justificatif/sectionLabel.dart';
 import 'package:syndory_etudiant/models/justificatifModels.dart';
 
-
-enum _UploadState { idle, uploading, done }
+enum _UploadState { idle, uploading, done, error }
 
 class JustificatifsUploadScreen extends StatefulWidget {
   final AbsenceEnAttente absence;
@@ -30,31 +29,68 @@ class JustificatifsUploadScreen extends StatefulWidget {
 
 class _JustificatifsUploadScreenState
     extends State<JustificatifsUploadScreen> {
-  _UploadState _uploadState = _UploadState.idle;
-  double _progress = 0.65;
+  _UploadState _state = _UploadState.idle;
+  PickedFile? _pickedFile; // fichier réel sélectionné via le picker
+  double _progress = 0;
+  String? _errorMessage;
   final TextEditingController _commentCtrl = TextEditingController();
 
-  static const _fileName = 'certificat_medical.pdf';
-  static const _fileSize = '1.2 MB';
+  // ── Sélection du fichier via le picker natif ─────────────────────────────
+  Future<void> _pickFile() async {
+    final file = await pickJustificatifFile();
+    if (file == null) return; // l'utilisateur a annulé
+    setState(() {
+      _pickedFile = file;
+      _state = _UploadState.idle;
+      _progress = 0;
+      _errorMessage = null;
+    });
+  }
 
-  void _pickFile() => setState(() {
-        _uploadState = _UploadState.uploading;
-        _progress = 0.65;
-      });
-
-  void _cancelUpload() => setState(() {
-        _uploadState = _UploadState.idle;
+  // ── Annuler et réinitialiser ─────────────────────────────────────────────
+  void _cancel() => setState(() {
+        _pickedFile = null;
+        _state = _UploadState.idle;
         _progress = 0;
+        _errorMessage = null;
       });
 
-  void _submit() {
-    if (_uploadState != _UploadState.uploading) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Justificatif soumis avec succès !'),
-        backgroundColor: AppColors.success,
-      ),
-    );
+  // ── Soumettre ────────────────────────────────────────────────────────────
+  Future<void> _submit() async {
+    if (_pickedFile == null) return;
+
+    setState(() {
+      _state = _UploadState.uploading;
+      _progress = 0;
+      _errorMessage = null;
+    });
+
+    try {
+      await uploadJustificatif(
+        pickedFile: _pickedFile!,
+        absenceId: widget.absence.id,
+        commentaire: _commentCtrl.text.trim().isEmpty
+            ? null
+            : _commentCtrl.text.trim(),
+        onProgress: (p) => setState(() => _progress = p),
+      );
+
+      if (!mounted) return;
+      setState(() => _state = _UploadState.done);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Justificatif soumis avec succès !'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _state = _UploadState.error;
+        _errorMessage = "Échec de l'envoi. Vérifiez votre connexion.";
+      });
+    }
   }
 
   @override
@@ -65,9 +101,13 @@ class _JustificatifsUploadScreenState
 
   @override
   Widget build(BuildContext context) {
+    final bool isUploading = _state == _UploadState.uploading;
+    final bool isDone = _state == _UploadState.done;
+    final bool canSubmit = _pickedFile != null && !isUploading && !isDone;
+
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
-      appBar: AppNavBarNoReturn(title: "Justificatifs d'absence"),
+      appBar: AppNavBarNoReturn(title: "Justificatifs d'absence", onNotificationPressed: () {  },),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -81,22 +121,51 @@ class _JustificatifsUploadScreenState
               const SectionLabel(title: 'Absence à justifier'),
               const SizedBox(height: 10),
               AbsenceCard(absence: widget.absence),
-
               const SizedBox(height: 24),
 
               // ── Zone de dépôt ────────────────────────────────────────
               const SectionLabel(title: 'Déposer le justificatif'),
               const SizedBox(height: 10),
 
-              if (_uploadState == _UploadState.idle)
+              if (_pickedFile == null)
                 FileUploadZoneEmpty(onTap: _pickFile)
               else
                 FileUploadZoneUploading(
-                  fileName: _fileName,
-                  fileSize: _fileSize,
+                  pickedFile: _pickedFile!, // ← PickedFile réel, plus de fileName/fileSize
                   progress: _progress,
-                  onCancel: _cancelUpload,
+                  onCancel: isUploading ? null : _cancel,
                 ),
+
+              // ── Message d'erreur ─────────────────────────────────────
+              if (_errorMessage != null) ...[
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.danger.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                        color: AppColors.danger.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline,
+                          color: AppColors.danger, size: 16),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppColors.danger,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
 
               const SizedBox(height: 16),
 
@@ -104,6 +173,7 @@ class _JustificatifsUploadScreenState
               TextField(
                 controller: _commentCtrl,
                 maxLines: 3,
+                enabled: !isUploading,
                 style: const TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 14,
@@ -149,7 +219,8 @@ class _JustificatifsUploadScreenState
               SizedBox(
                 width: double.infinity,
                 height: 52,
-                child: _uploadState == _UploadState.uploading
+                child: isUploading
+                    // En cours → orange + spinner
                     ? ElevatedButton.icon(
                         onPressed: null,
                         icon: const SizedBox(
@@ -178,27 +249,51 @@ class _JustificatifsUploadScreenState
                           elevation: 0,
                         ),
                       )
-                    : ElevatedButton(
-                        onPressed: null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          disabledBackgroundColor:
-                              AppColors.primary.withOpacity(0.4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                    : isDone
+                        // Succès → vert
+                        ? ElevatedButton.icon(
+                            onPressed: null,
+                            icon: const Icon(Icons.check_circle_outline,
+                                color: AppColors.white, size: 18),
+                            label: const Text(
+                              'Justificatif envoyé',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                                color: AppColors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.success,
+                              disabledBackgroundColor: AppColors.success,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                          )
+                        // Idle → navy, actif seulement si fichier choisi
+                        : ElevatedButton(
+                            onPressed: canSubmit ? _submit : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              disabledBackgroundColor: AppColors.gray4,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              'Soumettre le justificatif',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                                color: AppColors.white,
+                              ),
+                            ),
                           ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'Soumettre le justificatif',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                            color: AppColors.white,
-                          ),
-                        ),
-                      ),
               ),
 
               const SizedBox(height: 32),
@@ -214,16 +309,16 @@ class _JustificatifsUploadScreenState
                 ),
               ),
               const SizedBox(height: 12),
-
               ...mockHistoriqueCompact.map((e) => HistoriqueItem(entry: e)),
-
               const SizedBox(height: 24),
             ],
           ),
         ),
       ),
       bottomNavigationBar: AppBottomNavBar(
-          currentIndex: widget.navIndex, onTap: widget.onNavTap),
+        currentIndex: widget.navIndex,
+        onTap: widget.onNavTap,
+      ),
     );
   }
 }

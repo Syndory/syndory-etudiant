@@ -10,7 +10,7 @@ class DevoirCard extends StatelessWidget {
   final String niveau;
   final Color couleur;
 
-  const DevoirCard({
+  const DevoirCard({super.key, 
     required this.matiere,
     required this.titre,
     required this.date,

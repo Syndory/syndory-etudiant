@@ -22,7 +22,7 @@ class SectionLabel extends StatelessWidget {
             letterSpacing: 0.6,
           ),
         ),
-        if (action != null) action!,
+        ?action,
       ],
     );
   }

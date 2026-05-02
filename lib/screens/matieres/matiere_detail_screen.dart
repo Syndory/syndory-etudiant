@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/screens/ressources/ressources_screen.dart';
 
 class MatiereDetailScreen extends StatelessWidget {
-  final String nom;
-  final String prof;
-  final double assiduite;
-  final double progression;
+  final Map<String, dynamic> matiere;
 
   const MatiereDetailScreen({
     super.key,
-    required this.nom,
-    required this.prof,
-    required this.assiduite,
-    required this.progression,
+    required this.matiere,
   });
 
   @override
@@ -23,117 +17,183 @@ class MatiereDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF374151)),
-          onPressed: () => Navigator.pop(context),
+        leading: GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: const Icon(Icons.arrow_back, color: Color(0xFFF06424)),
         ),
         title: Text(
-          nom,
+          matiere['nom'] as String,
           style: const TextStyle(
-            color: Color(0xFF111827),
+            color: Color(0xFFF06424),
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        centerTitle: true,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+            padding: const EdgeInsets.only(right: 12),
             child: CircleAvatar(
-              radius: 16,
-              backgroundColor: const Color(0xFFF3F4F6),
-              child: const Icon(Icons.person, color: Color(0xFF9CA3AF), size: 18),
+              radius: 18,
+              backgroundColor: Colors.grey.shade200,
+              child: Icon(
+                matiere['avatarIcon'] as IconData,
+                color: Colors.grey,
+                size: 20,
+              ),
             ),
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // En-tête de la matière
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    nom,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF111827),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.person, size: 16, color: Color(0xFF6B7280)),
-                      const SizedBox(width: 4),
-                      Text(
-                        prof,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildStatCircular('Progression', progression, const Color(0xFF0284C7)),
-                      _buildStatCircular('Assiduité', assiduite, AppColors.success),
-                    ],
-                  ),
-                ],
+            Text(
+              matiere['badge'] as String,
+              style: TextStyle(
+                color: matiere['couleurBadge'] as Color,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
               ),
             ),
-            const SizedBox(height: 24),
-            const Text(
-              'Programme du cours',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF111827),
+            const SizedBox(height: 4),
+            Text(
+              matiere['nom'] as String,
+              style: const TextStyle(
+                color: Color(0xFF1A3C4D),
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 16),
-            // Liste des chapitres
-            _buildChapitre(
-              title: 'Chapitre 1: Introduction aux arbres',
-              subtitle: 'Définitions et propriétés de base',
-              progress: 1.0,
+            Row(
+              children: [
+                Expanded(
+                  child: _StatCard(
+                    icon: Icons.trending_up,
+                    iconColor: const Color(0xFFF06424),
+                    label: 'Progression',
+                    value: '${((matiere['progression'] as double) * 100).toInt()}%',
+                    valueColor: const Color(0xFFF06424),
+                    progress: matiere['progression'] as double,
+                    progressColor: const Color(0xFFF06424),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _StatCard(
+                    icon: Icons.person_outline,
+                    iconColor: const Color(0xFF2C3E50),
+                    label: 'Assiduité',
+                    value: '${((matiere['assiduite'] as double) * 100).toInt()}%',
+                    valueColor: const Color(0xFF2C3E50),
+                    progress: matiere['assiduite'] as double,
+                    progressColor: const Color(0xFF2C3E50),
+                  ),
+                ),
+              ],
             ),
-            _buildChapitre(
-              title: 'Chapitre 2: Arbres équilibrés',
-              subtitle: 'Arbres AVL, Arbres Rouge-Noir',
-              progress: 0.8,
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Programme du cours',
+                  style: TextStyle(
+                    color: Color(0xFF1A3C4D),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  '4 / 6 Chapitres',
+                  style: TextStyle(
+                    color: Colors.grey.shade500,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
-            _buildChapitre(
-              title: 'Chapitre 3: Graphes',
-              subtitle: 'Représentation, parcours (BFS, DFS)',
-              progress: 0.3,
+            const SizedBox(height: 12),
+            _ChapitreItem(
+              titre: 'Chapitre 1: Introduction',
+              sousTitre: 'Théorie des graphes & Complexité',
+              traite: true,
             ),
-            _buildChapitre(
-              title: 'Chapitre 4: Algorithmes de plus court chemin',
-              subtitle: 'Dijkstra, Bellman-Ford',
-              progress: 0.0,
+            const SizedBox(height: 8),
+            _ChapitreItem(
+              titre: 'Chapitre 2: Diviser pour régner',
+              sousTitre: 'Récursivité & Master Theorem',
+              traite: true,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
+            _ChapitreItem(
+              titre: 'Chapitre 5: Programmation Dynamique',
+              sousTitre: 'Mémoïsation & Tableaux',
+              traite: false,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Ressources',
+              style: TextStyle(
+                color: Color(0xFF1A3C4D),
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _RessourceCard(
+                    icon: Icons.picture_as_pdf,
+                    iconColor: const Color(0xFFF06424),
+                    iconBgColor: const Color(0xFFFFEEE6),
+                    titre: 'Syllabus PDF',
+                    sousTitre: '2.4 MB • v/2024',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _RessourceCard(
+                    icon: Icons.description_outlined,
+                    iconColor: const Color(0xFF2C3E50),
+                    iconBgColor: const Color(0xFFEEF2F5),
+                    titre: 'Notes de cours',
+                    sousTitre: 'Mis à jour hier',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Historique des séances',
+              style: TextStyle(
+                color: Color(0xFF1A3C4D),
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _SeanceItem(
+              mois: 'MAI',
+              jour: '24',
+              titre: 'Séance #12',
+              sousTitre: 'Amphi A • 08:30 – 10:30',
+              present: true,
+            ),
+            const SizedBox(height: 8),
+            _SeanceItem(
+              mois: 'MAI',
+              jour: '17',
+              titre: 'Séance #11',
+              sousTitre: 'Amphi A • 09:00 – 10:30',
+              present: true,
+            ),
+            const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -146,7 +206,7 @@ class MatiereDetailScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.orange,
+                  backgroundColor: const Color(0xFFF06424),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -165,96 +225,292 @@ class MatiereDetailScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: AppBottomNavBar(currentIndex: 2),
     );
   }
+}
 
-  Widget _buildStatCircular(String label, double value, Color color) {
-    return Column(
-      children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox(
-              width: 70,
-              height: 70,
-              child: CircularProgressIndicator(
-                value: value,
-                strokeWidth: 6,
-                backgroundColor: color.withValues(alpha: 0.1),
-                valueColor: AlwaysStoppedAnimation<Color>(color),
-              ),
-            ),
-            Text(
-              '${(value * 100).toInt()}%',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF4B5563),
-          ),
-        ),
-      ],
-    );
-  }
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final String value;
+  final Color valueColor;
+  final double progress;
+  final Color progressColor;
 
-  Widget _buildChapitre({required String title, required String subtitle, required double progress}) {
+  const _StatCard({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+    required this.valueColor,
+    required this.progress,
+    required this.progressColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: iconColor, size: 22),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              color: valueColor,
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 5,
+              backgroundColor: Colors.grey.shade200,
+              valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ChapitreItem extends StatelessWidget {
+  final String titre;
+  final String sousTitre;
+  final bool traite;
+
+  const _ChapitreItem({
+    required this.titre,
+    required this.sousTitre,
+    required this.traite,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: const Border(
+          left: BorderSide(color: Color(0xFFF06424), width: 3),
+        ),
+      ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  titre,
                   style: const TextStyle(
-                    fontSize: 15,
+                    color: Color(0xFF1A3C4D),
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF111827),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF6B7280),
+                  sousTitre,
+                  style: TextStyle(
+                    color: Colors.grey.shade500,
+                    fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          Text(
-            '${(progress * 100).toInt()}%',
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF0284C7),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: traite ? const Color(0xFFE6F4EA) : Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(6),
             ),
+            child: Text(
+              traite ? 'TRAITÉ' : 'NON\nTRAITÉ',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: traite ? const Color(0xFF2E7D32) : Colors.grey.shade500,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RessourceCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBgColor;
+  final String titre;
+  final String sousTitre;
+
+  const _RessourceCard({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBgColor,
+    required this.titre,
+    required this.sousTitre,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: iconColor, size: 30),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            titre,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Color(0xFF1A3C4D),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            sousTitre,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.grey.shade500,
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SeanceItem extends StatelessWidget {
+  final String mois;
+  final String jour;
+  final String titre;
+  final String sousTitre;
+  final bool present;
+
+  const _SeanceItem({
+    required this.mois,
+    required this.jour,
+    required this.titre,
+    required this.sousTitre,
+    required this.present,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Column(
+            children: [
+              Text(
+                mois,
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                jour,
+                style: const TextStyle(
+                  color: Color(0xFF1A3C4D),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  titre,
+                  style: const TextStyle(
+                    color: Color(0xFF1A3C4D),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  sousTitre,
+                  style: TextStyle(
+                    color: Colors.grey.shade500,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              Icon(
+                Icons.check_circle_outline,
+                color: present ? const Color(0xFF2E7D32) : Colors.grey,
+                size: 16,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                present ? 'PRÉSENT' : 'ABSENT',
+                style: TextStyle(
+                  color: present ? const Color(0xFF2E7D32) : Colors.grey,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ],
       ),

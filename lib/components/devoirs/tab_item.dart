@@ -4,7 +4,7 @@ class TabItem extends StatelessWidget {
   final String text;
   final bool active;
 
-  const TabItem({
+  const TabItem({super.key, 
     required this.text,
     required this.active,
   });

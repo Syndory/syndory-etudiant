@@ -13,7 +13,7 @@ class MatiereCard extends StatelessWidget {
   final double progression; // entre 0.0 et 1.0
   final IconData avatarIcon;
 
-  const MatiereCard({
+  const MatiereCard({super.key, 
     required this.nom,
     required this.badge,
     required this.couleurBadge,
@@ -39,10 +39,16 @@ class MatiereCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => MatiereDetailScreen(
-              nom: nom,
-              prof: prof,
-              assiduite: assiduite,
-              progression: progression,
+              matiere: {
+                'nom': nom,
+                'avatarIcon': avatarIcon,
+                'badge': badge,
+                'couleurBadge': couleurBadge,
+                'progression': progression,
+                'assiduite': assiduite,
+                'prof': prof,
+                'coefficient': coefficient,
+              },
             ),
           ),
         );
