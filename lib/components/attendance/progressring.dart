@@ -1,17 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/appTheme.dart';
+import 'package:syndory_etudiant/components/apptheme.dart';
 
 /// Anneau de progression circulaire affichant le taux global.
 class GlobalProgressRing extends StatefulWidget {
   final double rate; // 0.0 – 1.0
   final double size;
 
-  const GlobalProgressRing({
-    super.key,
-    required this.rate,
-    this.size = 140,
-  });
+  const GlobalProgressRing({super.key, required this.rate, this.size = 140});
 
   @override
   State<GlobalProgressRing> createState() => _GlobalProgressRingState();
@@ -29,9 +25,10 @@ class _GlobalProgressRingState extends State<GlobalProgressRing>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    _animation = Tween<double>(begin: 0, end: widget.rate).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    _animation = Tween<double>(
+      begin: 0,
+      end: widget.rate,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _controller.forward();
   }
 
@@ -57,7 +54,7 @@ class _GlobalProgressRingState extends State<GlobalProgressRing>
                 children: [
                   Text(
                     '${(_animation.value * 100).round()}%',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 28,
                       fontWeight: FontWeight.w700,

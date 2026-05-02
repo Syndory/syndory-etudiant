@@ -1,6 +1,9 @@
 // lib/mock_data.dart
 
 class MockData {
+  // Flag pour simuler l'absence de cours (pour le test de l'état vide)
+  static bool hasCoursesToday = false;
+
   // 1. Profil de l'utilisateur connecté
   static Map<String, dynamic> currentUser = {
     "id": "u1",

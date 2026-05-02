@@ -5,22 +5,17 @@ import 'package:syndory_etudiant/components/apptheme.dart';
 import 'package:syndory_etudiant/components/justificatif/historiqueDetail.dart';
 import 'package:syndory_etudiant/models/justificatifModels.dart';
 
-
 class EmptyJustificatifsScreen extends StatelessWidget {
   final int navIndex;
   final ValueChanged<int>? onNavTap;
 
-  const EmptyJustificatifsScreen({
-    super.key,
-    this.navIndex = 0,
-    this.onNavTap,
-  });
+  const EmptyJustificatifsScreen({super.key, this.navIndex = 0, this.onNavTap});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
-      appBar: AppNavBarNoReturn(title: "Justificatifs d'absence"),
+      appBar: AppNavBarNoReturn(title: "Justificatifs d'absence", onNotificationPressed: () {  },),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -105,8 +100,10 @@ class EmptyJustificatifsScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar:
-          AppBottomNavBar(currentIndex: navIndex, onTap: onNavTap),
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: navIndex,
+        onTap: onNavTap,
+      ),
     );
   }
 }

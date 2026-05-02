@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
-import 'package:syndory_etudiant/components/appNavbar.dart';
+import 'package:syndory_etudiant/components/appNavbarNoReturn.dart'; // Import du nouveau composant
 import 'package:syndory_etudiant/components/matieres/matieres_body.dart';
 import 'package:syndory_etudiant/mocks/mocks_matieres.dart';
+import 'package:syndory_etudiant/screens/notification/notifications_screen.dart'; // Import pour le clic
 
 /// Écran "Mes Matières".
 class MatieresScreen extends StatefulWidget {
@@ -28,7 +29,20 @@ class _MatieresScreenState extends State<MatieresScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F4F7),
-      appBar: AppNavbar(title: 'Mes matières'),
+      
+      // CORRECTION : Utilisation de AppNavBarNoReturn avec action notification
+      appBar: AppNavBarNoReturn(
+        title: 'Mes matières',
+        onNotificationPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NotificationsScreen(),
+            ),
+          );
+        },
+      ),
+      
       body: MatieresBody(
         activeSemestre: _activeSemestre,
         matieres: _matieres,
@@ -38,6 +52,7 @@ class _MatieresScreenState extends State<MatieresScreen> {
         onSearchChanged: (query) =>
             setState(() => _searchQuery = query),
       ),
+      
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: widget.navIndex,
         onTap: widget.onNavTap,

@@ -9,6 +9,9 @@ jobs:
   request-review:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Request Copilot Review
         run: gh pr edit ${{ github.event.pull_request.number }} --add-reviewer "github-copilot"
         env:

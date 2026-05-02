@@ -6,9 +6,13 @@ import '../../components/profil/profile_header.dart';
 import '../../components/profil/editable_field.dart';
 import '../../components/profil/info_section.dart';
 import '../../components/profil/password_section.dart';
+import '../../components/appBottomNavbar.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key, required int navIndex, required void Function(int index) onNavTap});
+  final int navIndex;
+  final ValueChanged<int>? onNavTap;
+
+  const ProfilePage({super.key, this.navIndex = 0, this.onNavTap});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +45,6 @@ class ProfilePage extends StatelessWidget {
           child: Container(color: const Color(0xFFF0F0F0), height: 1),
         ),
       ),
-
       // ─── Body ──────────────────────────────────────────────────────
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -160,18 +163,15 @@ class ProfilePage extends StatelessWidget {
             InfoSection(
               title: "Sécurité & Compte",
               children: [
-                // Section mot de passe
                 const PasswordSection(),
 
                 const SizedBox(height: 12),
 
-                // Séparateur
                 if (!c.showPasswordFields)
                   Divider(color: Colors.grey.shade100, height: 1),
 
                 if (!c.showPasswordFields) const SizedBox(height: 12),
 
-                // Bouton Se déconnecter
                 if (!c.showPasswordFields)
                   SizedBox(
                     width: double.infinity,
@@ -194,12 +194,7 @@ class ProfilePage extends StatelessWidget {
                       ),
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
-                          color: const Color.fromARGB(
-                            255,
-                            231,
-                            174,
-                            160,
-                          ).withValues(alpha: 0.3),
+                          color: const Color(0xFFBA1A1A).withOpacity(0.3),
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
@@ -217,13 +212,11 @@ class ProfilePage extends StatelessWidget {
 
             const SizedBox(height: 8),
 
-            // ─── Bouton Voir mon assiduité ─────────────────────────
+            // ─── Bouton Voir mon assiduité → navigue vers l'onglet assiduité (index 3)
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  //navigation vers la page assiduité
-                },
+                onPressed: () => onNavTap?.call(3),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFD5E02),
                   elevation: 0,
@@ -250,7 +243,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // ─── SnackBar succès ─────────────────────────────────────────────────
   SnackBar _successSnackBar() {
     return SnackBar(
       content: Row(
