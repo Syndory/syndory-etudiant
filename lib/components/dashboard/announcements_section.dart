@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:syndory_etudiant/screens/annonces/annonces_screen.dart';
 
 class AnnouncementsSection extends StatelessWidget {
   const AnnouncementsSection({super.key});
@@ -22,7 +23,11 @@ class AnnouncementsSection extends StatelessWidget {
               const Spacer(),
               // Le bouton pour aller vers ETU-11
               TextButton(
-                onPressed: () { print("Navigation vers ETU-11");},
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (_) => const AnnonceScreen(),
+                  ));
+                },
                 child: const Text('Voir tout', style: TextStyle(color: Colors.orange)),
               ),
             ],

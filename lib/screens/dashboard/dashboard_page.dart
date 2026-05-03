@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/appBottomNavbar.dart'; 
+import 'package:syndory_etudiant/components/appBottomNavbar.dart';
+import 'package:syndory_etudiant/components/appTheme.dart';
 import 'package:syndory_etudiant/mocks/dashboardMockData.dart';
 import 'package:syndory_etudiant/components/dashboard/active_session_banner.dart';
 import 'package:syndory_etudiant/components/dashboard/next_course_card.dart';
@@ -7,6 +8,7 @@ import 'package:syndory_etudiant/components/dashboard/timetable_section.dart';
 import 'package:syndory_etudiant/components/dashboard/stats_grid_section.dart';
 import 'package:syndory_etudiant/components/dashboard/announcements_section.dart';
 import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
+import 'package:syndory_etudiant/screens/annonces/annonces_screen.dart';
 
 class DashboardPage extends StatefulWidget { 
   final int navIndex;
@@ -70,45 +72,96 @@ Widget build(BuildContext context) {
 }
 
   Widget _buildHeader(Map<String, dynamic> user) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 25,
-            backgroundColor: Colors.orange[100],
-            child: const Icon(Icons.person, color: Color(0xFFF06424)),
-          ),
-          const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Bonjour, ${user['nom']}",
+    final String nom = user['nom'] ?? '';
+    // on prend juste le prenom (premier mot du nom complet)
+    final String prenom = nom.split(' ').first;
+
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Row(
+          children: [
+            // avatar avec les initiales
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: AppColors.secondary.withOpacity(0.15),
+              child: Text(
+                nom.isNotEmpty ? nom[0].toUpperCase() : 'E',
                 style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                user['filiere'],
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-            ],
-          ),
-          const Spacer(),
-          if (user['role'] == 'responsable')
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF052A36),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: const Text(
-                "Responsable",
-                style: TextStyle(color: Colors.white, fontSize: 10),
+                  color: AppColors.secondary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                  fontFamily: 'Inter',
+                ),
               ),
             ),
-        ],
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // nom de l'app en orange
+                const Text(
+                  'Syndory',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.secondary,
+                    fontFamily: 'Inter',
+                  ),
+                ),
+                Text(
+                  'Bonjour, $prenom',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                    fontFamily: 'Inter',
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            // badge responsable si besoin
+            if (user['role'] == 'responsable')
+              Container(
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text(
+                  'Responsable',
+                  style: TextStyle(color: Colors.white, fontSize: 10, fontFamily: 'Inter'),
+                ),
+              ),
+            // cloche de notification
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => const AnnonceScreen(),
+                ));
+              },
+              child: Stack(
+                children: [
+                  const Icon(Icons.notifications_none_outlined,
+                    color: AppColors.primary, size: 26),
+                  // point rouge pour indiquer qu'il y a des nouvelles annonces
+                  Positioned(
+                    right: 0, top: 0,
+                    child: Container(
+                      width: 8, height: 8,
+                      decoration: const BoxDecoration(
+                        color: AppColors.danger,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

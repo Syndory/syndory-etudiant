@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:syndory_etudiant/screens/matieres/matiere_detail_screen.dart';
 import 'matiere_card.dart';
 
 /// Corps principal de l'écran "Mes Matières".
@@ -138,15 +139,23 @@ class MatieresBody extends StatelessWidget {
                   itemCount: matieresFiltrees.length,
                   itemBuilder: (context, index) {
                     final m = matieresFiltrees[index];
-                    return MatiereCard(
-                      nom: m['nom'] as String,
-                      badge: m['badge'] as String,
-                      couleurBadge: m['couleurBadge'] as Color,
-                      assiduite: (m['assiduite'] as num).toDouble(),
-                      prof: m['prof'] as String,
-                      coefficient: m['coefficient'] as int,
-                      progression: (m['progression'] as num).toDouble(),
-                      avatarIcon: m['avatarIcon'] as IconData,
+                    return GestureDetector(
+                      onTap: () {
+                        // on ouvre le detail de la matiere
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (_) => MatiereDetailScreen(matiere: m),
+                        ));
+                      },
+                      child: MatiereCard(
+                        nom: m['nom'] as String,
+                        badge: m['badge'] as String,
+                        couleurBadge: m['couleurBadge'] as Color,
+                        assiduite: (m['assiduite'] as num).toDouble(),
+                        prof: m['prof'] as String,
+                        coefficient: m['coefficient'] as int,
+                        progression: (m['progression'] as num).toDouble(),
+                        avatarIcon: m['avatarIcon'] as IconData,
+                      ),
                     );
                   },
                 ),
