@@ -3,11 +3,13 @@ import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/appTheme.dart';
 import 'package:syndory_etudiant/screens/attendance/attendanceScreen.dart';
 import 'package:syndory_etudiant/screens/attendance/emptyAttendanceScreen.dart';
-import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';   
+import 'package:syndory_etudiant/screens/auth/login_screen.dart';
+import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';
 import 'package:syndory_etudiant/screens/calendar/calendar_page.dart';
 import 'package:syndory_etudiant/screens/devoir/devoirs_screen.dart';
 import 'package:syndory_etudiant/screens/justificatif/justificatifs_tab.dart';
 import 'package:syndory_etudiant/screens/matieres/matieres_screen.dart';
+import 'package:syndory_etudiant/screens/profile/profile_screen.dart';
 import 'package:syndory_etudiant/screens/resources/resources_page.dart';
 
 void main() {
@@ -23,7 +25,11 @@ class MyApp extends StatelessWidget {
       title: 'Syndory Étudiant',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const AppShell(),
+      initialRoute: '/',
+      routes: {
+        '/': (_) => const LoginScreen(),
+        '/home': (_) => const AppShell(),
+      },
     );
   }
 }
@@ -54,12 +60,7 @@ class _AppShellState extends State<AppShell> {
            MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
            DevoirsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
            ResourcesPage(navIndex: _currentIndex, onNavTap: _onNavTap),
-          _PlaceholderPage(
-            label: 'Profil',
-            icon: Icons.person,
-            navIndex: _currentIndex,
-            onNavTap: _onNavTap,
-          ),
+          ProfileScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
            
         ],
       ),
