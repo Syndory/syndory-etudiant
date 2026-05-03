@@ -67,6 +67,7 @@ class _AppShellState extends State<AppShell> {
           _AttendanceTab(navIndex: _currentIndex, onNavTap: _onNavTap),
           MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
           DevoirsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
+          ResourcesPage(navIndex: _currentIndex, onNavTap: _onNavTap), 
           AnnouncementsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
         ],
       ),
