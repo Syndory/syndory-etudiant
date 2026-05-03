@@ -12,6 +12,7 @@ import 'package:syndory_etudiant/screens/matieres/matieres_screen.dart';
 import 'package:syndory_etudiant/screens/resources/resources_page.dart';
 import 'package:syndory_etudiant/screens/profil/profile_page.dart';
 import 'package:syndory_etudiant/profile/controllers/profile_controller.dart';
+import 'package:syndory_etudiant/screens/announcements/announcements_screen.dart';
 
 void main() {
   runApp(
@@ -66,7 +67,7 @@ class _AppShellState extends State<AppShell> {
           _AttendanceTab(navIndex: _currentIndex, onNavTap: _onNavTap),
           MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
           DevoirsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
-          ResourcesPage(navIndex: _currentIndex, onNavTap: _onNavTap),
+          AnnouncementsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
         ],
       ),
     );
