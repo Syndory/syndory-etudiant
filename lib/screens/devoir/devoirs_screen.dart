@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
-import 'package:syndory_etudiant/components/appNavbarNoReturn.dart'; 
+import 'package:syndory_etudiant/components/appNavbar.dart';
 import 'package:syndory_etudiant/components/devoirs/devoirs_body.dart';
 import 'package:syndory_etudiant/mocks/mocksDevoirs.dart';
 import 'package:syndory_etudiant/screens/notification/notifications_screen.dart';
@@ -30,16 +30,9 @@ class _DevoirsScreenState extends State<DevoirsScreen> {
       backgroundColor: const Color(0xFFF2F4F7),
       
       // CORRECTION : Remplacement par AppNavBarNoReturn
-      appBar: AppNavBarNoReturn(
+      appBar: AppNavbar(
         title: 'Mes Devoirs',
-        onNotificationPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NotificationsScreen(),
-            ),
-          );
-        },
+       
       ),
       
       body: DevoirsBody(
@@ -48,10 +41,7 @@ class _DevoirsScreenState extends State<DevoirsScreen> {
         onTabChanged: (index) => setState(() => _activeTab = index),
       ),
       
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: widget.navIndex,
-        onTap: widget.onNavTap,
-      ),
+     
     );
   }
 }

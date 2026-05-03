@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:syndory_etudiant/screens/notification/notifications_screen.dart';
 import 'package:syndory_etudiant/screens/profil/profile_page.dart';
 import 'package:syndory_etudiant/profile/controllers/profile_controller.dart';
 
@@ -51,16 +52,16 @@ class AppNavbar extends StatelessWidget implements PreferredSizeWidget {
           child: Padding(
             padding: const EdgeInsets.only(right: 12),
             child: Center(
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.orange.shade200,
-                backgroundImage: avatarUrl != null
-                    ? NetworkImage(avatarUrl!)
-                    : null,
-                child: avatarUrl == null
-                    ? const Icon(Icons.person, color: Colors.white, size: 20)
-                    : null,
-              ),
+              child:IconButton(
+          icon: const Icon(
+            Icons.notifications_none_rounded,
+            color: Color(0xFF052A36),
+          ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          ),
+        ), 
             ),
           ),
         ),
