@@ -19,7 +19,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   // controlleurs pour les champs editables
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
@@ -32,9 +31,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     // on pre-remplit les champs avec les donnees du mock
     // plus tard ce sera les vraies donnees de l'API
-    _emailController = TextEditingController(text: 'kwame.mensah@universite.edu');
-    _phoneController = TextEditingController(text: '+225 01 23 45 67 89');
-    _addressController = TextEditingController(text: 'Cocody, Abidjan, Cote d\'Ivoire');
+    _emailController = TextEditingController(
+      text: 'jean.dupont@universite.edu',
+    );
+    _phoneController = TextEditingController(text: '+229 01 23 45 67 89');
+    _addressController = TextEditingController(text: 'Jericho, Cotonou, Benin');
   }
 
   @override
@@ -162,7 +163,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(filiere,
+        Text(
+          filiere,
           style: const TextStyle(
             fontFamily: 'Inter',
             fontSize: 14,
@@ -193,9 +195,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           _editableField(label: 'Adresse Email', controller: _emailController),
           const SizedBox(height: 16),
-          _editableField(label: 'Numero de Telephone', controller: _phoneController),
+          _editableField(
+            label: 'Numero de Telephone',
+            controller: _phoneController,
+          ),
           const SizedBox(height: 16),
-          _editableField(label: 'Adresse Domicile', controller: _addressController),
+          _editableField(
+            label: 'Adresse Domicile',
+            controller: _addressController,
+          ),
 
           const SizedBox(height: 24),
 
@@ -208,21 +216,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.secondary,
                 foregroundColor: AppColors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 elevation: 0,
               ),
               child: _isSaving
-                ? const SizedBox(
-                    width: 20, height: 20,
-                    child: CircularProgressIndicator(color: AppColors.white, strokeWidth: 2),
-                  )
-                : const Text('Enregistrer',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: AppColors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      'Enregistrer',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
                     ),
-                  ),
             ),
           ),
         ],
@@ -231,12 +246,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // champ de texte avec un label et une icone crayon
-  Widget _editableField({required String label, required TextEditingController controller}) {
+  Widget _editableField({
+    required String label,
+    required TextEditingController controller,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // label du champ
-        Text(label,
+        Text(
+          label,
           style: const TextStyle(
             fontFamily: 'Inter',
             fontSize: 12,
@@ -261,7 +280,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: AppColors.gray1,
                   ),
                   decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 14,
+                    ),
                     border: InputBorder.none,
                     isDense: true,
                   ),
@@ -270,7 +292,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // icone pour indiquer que c'est modifiable
               const Padding(
                 padding: EdgeInsets.only(right: 12),
-                child: Icon(Icons.edit_outlined, size: 16, color: AppColors.textSecondary),
+                child: Icon(
+                  Icons.edit_outlined,
+                  size: 16,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -286,7 +312,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Securite et Compte',
+          const Text(
+            'Securite et Compte',
             style: TextStyle(
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
@@ -306,8 +333,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               side: const BorderSide(color: AppColors.gray4),
               backgroundColor: AppColors.white,
               minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              textStyle: const TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600, fontSize: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              textStyle: const TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
             ),
           ),
 
@@ -317,7 +350,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           TextButton.icon(
             onPressed: () => _confirmLogout(context),
             icon: const Icon(Icons.logout, size: 18, color: AppColors.danger),
-            label: const Text('Se deconnecter',
+            label: const Text(
+              'Se deconnecter',
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
@@ -327,7 +361,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             style: TextButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               backgroundColor: AppColors.danger.withOpacity(0.05),
             ),
           ),
@@ -349,10 +385,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.secondary,
             foregroundColor: AppColors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             elevation: 0,
           ),
-          child: const Text('Voir mon assiduite',
+          child: const Text(
+            'Voir mon assiduite',
             style: TextStyle(
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
@@ -390,17 +429,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Changer de mot de passe',
-          style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.primary),
+        title: const Text(
+          'Changer de mot de passe',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+            color: AppColors.primary,
+          ),
         ),
         content: const Text(
           'Disponible une fois le backend connecte.',
-          style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: AppColors.gray2),
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            color: AppColors.gray2,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+            child: const Text(
+              'OK',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
@@ -413,16 +468,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Se deconnecter',
-          style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.primary),
+        title: const Text(
+          'Se deconnecter',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+            color: AppColors.primary,
+          ),
         ),
-        content: const Text('Voulez-vous vraiment vous deconnecter ?',
-          style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: AppColors.gray2),
+        content: const Text(
+          'Voulez-vous vraiment vous deconnecter ?',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 14,
+            color: AppColors.gray2,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler', style: TextStyle(color: AppColors.gray3)),
+            child: const Text(
+              'Annuler',
+              style: TextStyle(color: AppColors.gray3),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -430,7 +499,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // on revient a la page de login et on efface tout l'historique de navigation
               Navigator.of(context).pushNamedAndRemoveUntil('/', (_) => false);
             },
-            child: const Text('Deconnecter', style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600)),
+            child: const Text(
+              'Deconnecter',
+              style: TextStyle(
+                color: AppColors.danger,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
