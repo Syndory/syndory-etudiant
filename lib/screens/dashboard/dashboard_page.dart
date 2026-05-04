@@ -8,7 +8,8 @@ import 'package:syndory_etudiant/components/dashboard/timetable_section.dart';
 import 'package:syndory_etudiant/components/dashboard/stats_grid_section.dart';
 import 'package:syndory_etudiant/components/dashboard/announcements_section.dart';
 import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
-import 'package:syndory_etudiant/screens/annonces/annonces_screen.dart';
+import 'package:syndory_etudiant/screens/notifications/notifications_screen.dart';
+import 'package:syndory_etudiant/services/notification_service.dart';
 
 class DashboardPage extends StatefulWidget { 
   final int navIndex;
@@ -25,6 +26,28 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  final _notifService = NotificationService();
+
+  // nombre de notifications non lues (pour le badge sur la cloche)
+  int _unreadCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // on charge le nombre de notifs non lues au demarrage du dashboard
+    _loadUnreadCount();
+  }
+
+  // recupere le nombre de notifications non lues depuis Supabase
+  Future<void> _loadUnreadCount() async {
+    try {
+      final count = await _notifService.fetchUnreadCount();
+      if (mounted) setState(() => _unreadCount = count);
+    } catch (_) {
+      // si ca echoue on laisse le badge a zero sans crasher
+    }
+  }
+
   @override
 Widget build(BuildContext context) {
   final activeSession = MockData.activeSession;
@@ -72,9 +95,10 @@ Widget build(BuildContext context) {
 }
 
   Widget _buildHeader(Map<String, dynamic> user) {
-    final String nom = user['nom'] ?? '';
+    // nom vient du mock pour l'instant — sera remplace par les donnees de l'API auth
+    final String nom = user['nom'] as String? ?? '';
     // on prend juste le prenom (premier mot du nom complet)
-    final String prenom = nom.split(' ').first;
+    final String prenom = nom.isNotEmpty ? nom.split(' ').first : 'Etudiant';
 
     return SafeArea(
       bottom: false,
@@ -135,28 +159,42 @@ Widget build(BuildContext context) {
                   style: TextStyle(color: Colors.white, fontSize: 10, fontFamily: 'Inter'),
                 ),
               ),
-            // cloche de notification
+            // cloche de notification — va vers les notifs personnelles
             GestureDetector(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => const AnnonceScreen(),
+              onTap: () async {
+                await Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => const NotificationsScreen(),
                 ));
+                // quand on revient de la page notifs, on rafraichit le compteur
+                _loadUnreadCount();
               },
               child: Stack(
+                clipBehavior: Clip.none,
                 children: [
                   const Icon(Icons.notifications_none_outlined,
                     color: AppColors.primary, size: 26),
-                  // point rouge pour indiquer qu'il y a des nouvelles annonces
-                  Positioned(
-                    right: 0, top: 0,
-                    child: Container(
-                      width: 8, height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppColors.danger,
-                        shape: BoxShape.circle,
+                  // badge rouge avec le nombre de non-lues
+                  if (_unreadCount > 0)
+                    Positioned(
+                      right: -4, top: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(
+                          color: AppColors.danger,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                        child: Text(
+                          _unreadCount > 9 ? '9+' : '$_unreadCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
