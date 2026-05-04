@@ -5,15 +5,16 @@ import 'package:syndory_etudiant/components/appTheme.dart';
 import 'package:syndory_etudiant/components/justificatif/historiqueDetail.dart';
 import 'package:syndory_etudiant/models/justificatifModels.dart';
 
-
 class EmptyJustificatifsScreen extends StatelessWidget {
   final int navIndex;
   final ValueChanged<int>? onNavTap;
+  final List<JustificatifHistoriqueDetaille> historiqueEntries;
 
   const EmptyJustificatifsScreen({
     super.key,
     this.navIndex = 0,
     this.onNavTap,
+    this.historiqueEntries = const [],
   });
 
   @override
@@ -96,17 +97,17 @@ class EmptyJustificatifsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              ...mockHistoriqueDetaille.map(
-                (e) => HistoriqueDetailCard(entry: e),
-              ),
+              ...historiqueEntries.map((e) => HistoriqueDetailCard(entry: e)),
 
               const SizedBox(height: 24),
             ],
           ),
         ),
       ),
-      bottomNavigationBar:
-          AppBottomNavBar(currentIndex: navIndex, onTap: onNavTap),
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: navIndex,
+        onTap: onNavTap,
+      ),
     );
   }
 }
