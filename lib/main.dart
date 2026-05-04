@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/appTheme.dart';
 import 'package:syndory_etudiant/screens/attendance/attendanceScreen.dart';
@@ -12,8 +13,15 @@ import 'package:syndory_etudiant/screens/matieres/matieres_screen.dart';
 import 'package:syndory_etudiant/screens/profile/profile_screen.dart';
 import 'package:syndory_etudiant/screens/resources/resources_page.dart';
 
-void main() {
-  runApp(MyApp());
+// main() est async uniquement pour l'init des dates en francais
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // charge les donnees de localisation pour afficher les dates en francais
+  // ex : "3 mai" au lieu de "3 May"
+  await initializeDateFormatting('fr_FR', null);
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -22,7 +30,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Syndory Étudiant',
+      title: 'Syndory Etudiant',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       initialRoute: '/',
