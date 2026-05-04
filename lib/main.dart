@@ -16,10 +16,8 @@ import 'package:syndory_etudiant/screens/announcements/announcements_screen.dart
 
 void main() {
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ProfileController()),
-      ],
+    ChangeNotifierProvider(
+      create: (_) => ProfileController(),
       child: const MyApp(),
     ),
   );
@@ -64,10 +62,8 @@ class _AppShellState extends State<AppShell> {
           DashboardPage(navIndex: _currentIndex, onNavTap: _onNavTap),
           CalendarPage(navIndex: _currentIndex, onNavTap: _onNavTap),
           JustificatifsTab(navIndex: _currentIndex, onNavTap: _onNavTap),
-          _AttendanceTab(navIndex: _currentIndex, onNavTap: _onNavTap),
+          AttendanceTab(navIndex: _currentIndex, onNavTap: _onNavTap),
           MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
-          DevoirsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
-          ResourcesPage(navIndex: _currentIndex, onNavTap: _onNavTap), 
           AnnouncementsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
         ],
       ),
@@ -76,17 +72,17 @@ class _AppShellState extends State<AppShell> {
 }
 
 /// Onglet Assiduité : bascule entre écran vide et écran rempli.
-class _AttendanceTab extends StatefulWidget {
+class AttendanceTab extends StatefulWidget {
   final int navIndex;
   final ValueChanged<int> onNavTap;
 
-  const _AttendanceTab({required this.navIndex, required this.onNavTap});
+  const AttendanceTab({required this.navIndex, required this.onNavTap});
 
   @override
-  State<_AttendanceTab> createState() => _AttendanceTabState();
+  State<AttendanceTab> createState() => _AttendanceTabState();
 }
 
-class _AttendanceTabState extends State<_AttendanceTab> {
+class _AttendanceTabState extends State<AttendanceTab> {
   bool _hasData = false;
 
   @override
@@ -105,47 +101,3 @@ class _AttendanceTabState extends State<_AttendanceTab> {
     );
   }
 }
-
-/// Placeholder pour les onglets non encore implémentés.
-class _PlaceholderPage extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final int navIndex;
-  final ValueChanged<int> onNavTap;
-
-  const _PlaceholderPage({
-    super.key, // Correction du super.key
-    required this.label,
-    required this.icon,
-    required this.navIndex,
-    required this.onNavTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgPrimary,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: AppColors.textMuted, size: 48),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: navIndex,
-        onTap: onNavTap,
-      ),
-    );
-  }
-}
-

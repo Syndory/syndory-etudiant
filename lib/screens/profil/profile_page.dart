@@ -6,7 +6,7 @@ import '../../components/profil/profile_header.dart';
 import '../../components/profil/editable_field.dart';
 import '../../components/profil/info_section.dart';
 import '../../components/profil/password_section.dart';
-import '../../components/appBottomNavbar.dart';
+
 
 class ProfilePage extends StatelessWidget {
   final int navIndex;

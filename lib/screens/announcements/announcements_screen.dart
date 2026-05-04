@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
+import 'package:syndory_etudiant/components/appNavbarNoReturn.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
 import 'package:syndory_etudiant/components/announcements/empty_state_announcements.dart';
 import 'package:syndory_etudiant/components/announcements/announcements_hero_header.dart';
@@ -58,7 +59,7 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
-      appBar: _buildAppBar(),
+      appBar: AppNavBarNoReturn(title: "Annonce", onNotificationPressed: () {  },),
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: widget.navIndex,
         onTap: widget.onNavTap,
@@ -67,30 +68,6 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // AppBar : ← Announcements
-  // ─────────────────────────────────────────────────────────────────────────
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppColors.white,
-      elevation: 0,
-      centerTitle: true,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios,
-            color: AppColors.primary, size: 20),
-        onPressed: () => Navigator.maybePop(context),
-      ),
-      title: const Text(
-        'Announcements',
-        style: TextStyle(
-          fontFamily: 'Inter',
-          fontWeight: FontWeight.w700,
-          fontSize: 17,
-          color: AppColors.primary,
-        ),
-      ),
-    );
-  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // État vide

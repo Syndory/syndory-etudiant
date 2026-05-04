@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
+import 'package:syndory_etudiant/components/appNavbar.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
 import 'package:syndory_etudiant/components/announcements/attachment_item.dart';
 import 'package:syndory_etudiant/models/announcement_model.dart';
@@ -22,7 +23,7 @@ class AnnouncementDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
-      appBar: _buildAppBar(context),
+      appBar: AppNavbar(title: "Annonce",),
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: navIndex,
         onTap: onNavTap,

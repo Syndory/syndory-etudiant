@@ -2,7 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/screens/devoir/devoirs_screen.dart';
 
 class StatsGridSection extends StatelessWidget {
-  const StatsGridSection({super.key});
+  // 1. Déclarer les variables au niveau de la classe (pas dans le build)
+  final int navIndex;
+  final ValueChanged<int> onNavTap;
+
+  const StatsGridSection({
+    super.key,
+    required this.navIndex,
+    required this.onNavTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +20,7 @@ class StatsGridSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ---------------------------------------------------------
-          // 1. CARTE PRÉSENCE
+          // 1. CARTE PRÉSENCE (Redirige vers l'onglet du Shell)
           // ---------------------------------------------------------
           Expanded(
             child: _buildStatCard(
@@ -28,7 +36,7 @@ class StatsGridSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 15),
-                  // Graphique circulaire
+                  // Graphique circulaire (Exemple statique)
                   Stack(
                     alignment: Alignment.center,
                     children: [
@@ -40,7 +48,7 @@ class StatsGridSection extends StatelessWidget {
                           strokeWidth: 8,
                           backgroundColor: Colors.grey[200],
                           valueColor: const AlwaysStoppedAnimation<Color>(
-                            Color(0xFFF06424), // Orange de la maquette
+                            Color(0xFFF06424),
                           ),
                         ),
                       ),
@@ -55,20 +63,9 @@ class StatsGridSection extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 15),
-                  const Text(
-                    "Bonne situation",
-                    style: TextStyle(
-                      color: Color(0xFF00897B), // Vert sombre
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  // Bouton Voir tout (Lien Présence)
                   _buildViewAllButton(
                     onPressed: () {
-                      // LIEN : Naviguer vers la page ETU-09 (Historique d'assiduité / Présence)
-                      print("Navigation vers ETU-09...");
+                      onNavTap(3);
                     },
                   ),
                 ],
@@ -79,7 +76,7 @@ class StatsGridSection extends StatelessWidget {
           const SizedBox(width: 15),
 
           // ---------------------------------------------------------
-          // 2. CARTE DEVOIRS
+          // 2. CARTE DEVOIRS (Redirige vers un nouvel écran)
           // ---------------------------------------------------------
           Expanded(
             child: _buildStatCard(
@@ -106,21 +103,15 @@ class StatsGridSection extends StatelessWidget {
                   const Text(
                     "À rendre cette\nsemaine",
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 11,
-                      height: 1.2,
-                    ),
+                    style: TextStyle(color: Colors.grey, fontSize: 11),
                   ),
                   const SizedBox(height: 15),
-                  // Bouton Voir tout (Lien Devoirs)
                   _buildViewAllButton(
                     onPressed: () {
-                      print("Navigation vers ETU-08...");
-                      
+                      // ✅ Ouvre l'écran Devoirs par-dessus (avec flèche retour)
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => DevoirsScreen()),
+                        MaterialPageRoute(builder: (context) => const DevoirsScreen()),
                       );
                     },
                   ),
@@ -133,7 +124,8 @@ class StatsGridSection extends StatelessWidget {
     );
   }
 
-  // Helper pour construire le fond blanc des cartes
+  // --- HELPERS (Privés) ---
+
   Widget _buildStatCard({required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(15),
@@ -153,7 +145,6 @@ class StatsGridSection extends StatelessWidget {
     );
   }
 
-  // Helper pour le bouton "Voir tout" uniforme
   Widget _buildViewAllButton({required VoidCallback onPressed}) {
     return SizedBox(
       width: double.infinity,
@@ -161,16 +152,14 @@ class StatsGridSection extends StatelessWidget {
       child: TextButton(
         onPressed: onPressed,
         style: TextButton.styleFrom(
-          backgroundColor: const Color(0xFFF5F7F8), // Gris très clair
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          backgroundColor: const Color(0xFFF5F7F8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: EdgeInsets.zero,
         ),
         child: const Text(
           "Voir tout",
           style: TextStyle(
-            color: Color(0xFF052A36), // Bleu nuit sombre
+            color: Color(0xFF052A36),
             fontSize: 12,
             fontWeight: FontWeight.bold,
           ),

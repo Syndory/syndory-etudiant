@@ -70,8 +70,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
               ),
-              const AnnouncementsSection(),
-
+              AnnouncementsSection(
+                onNavTap: widget.onNavTap!,
+              ),
               const Padding(
                 padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
                 child: Text(
@@ -85,7 +86,10 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const RecentDocumentsSection(),
               
-              const StatsGridSection(),
+               StatsGridSection(
+                  navIndex: widget.navIndex,
+                  onNavTap: widget.onNavTap!,
+                ),
               const SizedBox(height: 30),
             ],
           ),
