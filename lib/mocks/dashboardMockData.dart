@@ -7,9 +7,10 @@ class MockData {
   // 1. Profil de l'utilisateur connecté
   static Map<String, dynamic> currentUser = {
     "id": "u1",
-    "nom": "Jean Dupont",
+    "nom": "Kofi Hounnou",
     "role": "etudiant", // Changez en 'responsable' pour tester le bandeau admin
-    "filiere": "Architecture Logicielle",
+    "filiere": "Génie Logiciel — L3",
+    "universite": "Université d'Abomey-Calavi",
     "assiduite_globale": 0.85,
   };
 
@@ -18,18 +19,18 @@ class MockData {
   static Map<String, dynamic>? activeSession = {
     "id": "sess_01",
     "matiere": "Structures de données & Algorithmes",
-    "prof": "Dr. Sossa",
-    "salle": "Salle 403, Bloc C",
+    "prof": "Dr. Ahouandjinou",
+    "salle": "Amphi B, Bâtiment FAST",
     "est_ouverte": true,
   };
 
   // 3. Prochain cours (pour la carte "À suivre")
   static Map<String, dynamic>? nextCourse = {
-    "matiere": "Macroéconomie avancée",
-    "prof": "Prof. N. Addo",
-    "salle": "Salle 402, Bloc C",
-    "horaire": "11:00 AM - 1:00 PM",
-    "nb_etudiants": 42,
+    "matiere": "Systèmes d'exploitation",
+    "prof": "Prof. Dossou-Gbété",
+    "salle": "Salle 204, Bâtiment INFO",
+    "horaire": "10h00 - 12h00",
+    "nb_etudiants": 38,
     "temps_restant": "45 MIN",
   };
 
@@ -40,12 +41,12 @@ class MockData {
   // 5. Les 2 dernières annonces (CDC : aperçu limité à 2)
   static List<Map<String, dynamic>> lastAnnonces = [
     {
-      "titre": "Ouverture des inscriptions au forum carrière",
+      "titre": "Ouverture des inscriptions aux examens de fin de semestre",
       "date": "Aujourd'hui, 08h30",
       "est_nouveau": true,
     },
     {
-      "titre": "Mise à jour des horaires de la bibliothèque",
+      "titre": "Mise à jour du calendrier des soutenances UAC",
       "date": "Hier, 14h15",
       "est_nouveau": false,
     }

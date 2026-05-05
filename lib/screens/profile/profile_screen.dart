@@ -32,9 +32,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     // on pre-remplit les champs avec les donnees du mock
     // plus tard ce sera les vraies donnees de l'API
-    _emailController = TextEditingController(text: 'kwame.mensah@universite.edu');
-    _phoneController = TextEditingController(text: '+225 01 23 45 67 89');
-    _addressController = TextEditingController(text: 'Cocody, Abidjan, Cote d\'Ivoire');
+    _emailController = TextEditingController(text: 'kofi.hounnou@uac.bj');
+    _phoneController = TextEditingController(text: '+229 97 45 23 81');
+    _addressController = TextEditingController(text: 'Gbèdjromèdji, Cotonou, Bénin');
   }
 
   @override

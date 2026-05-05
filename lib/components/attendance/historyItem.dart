@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:syndory_etudiant/components/appTheme.dart';
-
-=======
-import 'package:syndory_etudiant/components/apptheme.dart';
->>>>>>> origin/develop
 import 'package:syndory_etudiant/models/periodModel.dart';
 import 'package:syndory_etudiant/models/session_status.dart';
 import 'package:syndory_etudiant/screens/attendance/detail_seance_screen.dart';
