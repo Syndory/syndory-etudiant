@@ -1,23 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../models/matiere_model.dart';
 
-/// Carte représentant un devoir.
-/// Réutilisable partout dans l'app.
+/// Carte représentant une matière sous forme de devoir.
 class DevoirCard extends StatelessWidget {
-  final String matiere;
-  final String titre;
-  final String date;
-  final double progression; // entre 0.0 et 1.0
-  final String niveau;
-  final Color couleur;
+  final Matiere matiere;
 
-  const DevoirCard({super.key, 
-    required this.matiere,
-    required this.titre,
-    required this.date,
-    required this.progression,
-    required this.niveau,
-    required this.couleur,
-  });
+  const DevoirCard({super.key, required this.matiere});
 
   @override
   Widget build(BuildContext context) {
@@ -37,14 +25,14 @@ class DevoirCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── En-tête : matière + badge niveau 
+          // ── En-tête : nom matière + badge niveau
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                matiere,
+                matiere.nom,
                 style: TextStyle(
-                  color: couleur,
+                  color: matiere.couleur,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.5,
@@ -53,13 +41,13 @@ class DevoirCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(
-                  color: couleur.withOpacity(0.12),
+                  color: matiere.couleur.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  niveau,
+                  matiere.niveau,
                   style: TextStyle(
-                    color: couleur,
+                    color: matiere.couleur,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -70,9 +58,9 @@ class DevoirCard extends StatelessWidget {
 
           const SizedBox(height: 8),
 
-          // ── Titre du devoir 
+          // ── Code de la matière (ex: MATH101)
           Text(
-            titre,
+            matiere.code ?? matiere.nom,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -82,14 +70,14 @@ class DevoirCard extends StatelessWidget {
 
           const SizedBox(height: 10),
 
-          //  Date avec icône calendrier 
+          // ── Date (prochaine séance ou placeholder)
           Row(
             children: [
               Icon(Icons.calendar_today_outlined,
                   size: 13, color: Colors.grey.shade500),
               const SizedBox(width: 5),
               Text(
-                date,
+                matiere.prochaineDate ?? '—',
                 style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
               ),
             ],
@@ -97,24 +85,23 @@ class DevoirCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          // ── Barre de progression + pourcentage 
+          // ── Barre de progression + pourcentage
           Row(
             children: [
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
-                    value: progression,
+                    value: matiere.progression,
                     minHeight: 6,
                     backgroundColor: Colors.grey.shade200,
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.orange),
+                    valueColor: AlwaysStoppedAnimation<Color>(matiere.couleur),
                   ),
                 ),
               ),
               const SizedBox(width: 10),
               Text(
-                '${(progression * 100).toInt()}%',
+                '${(matiere.progression * 100).toInt()}%',
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,

@@ -13,13 +13,11 @@ import 'package:syndory_etudiant/screens/resources/resources_page.dart';
 import 'package:syndory_etudiant/screens/profil/profile_page.dart';
 import 'package:syndory_etudiant/profile/controllers/profile_controller.dart';
 import 'package:syndory_etudiant/screens/announcements/announcements_screen.dart';
+import 'package:syndory_etudiant/providers/devoir_provider.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ProfileController(),
-      child: const MyApp(),
-    ),
+    const MyApp(),
   );
 }
 
@@ -29,7 +27,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => ProfileController())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProfileController()),
+        ChangeNotifierProvider(create: (_) => DevoirProvider()),
+      ],
       child: MaterialApp(
         title: 'Syndory Étudiant',
         debugShowCheckedModeBanner: false,
