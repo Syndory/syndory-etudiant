@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/screens/annonces/annonces_screen.dart';
 
 class AnnouncementsSection extends StatelessWidget {
   // ✅ On ajoute la fonction de navigation en paramètre
@@ -33,20 +32,12 @@ class AnnouncementsSection extends StatelessWidget {
               
               TextButton(
                 onPressed: () {
-<<<<<<< HEAD
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (_) => const AnnonceScreen(),
-                  ));
-                },
-                child: const Text('Voir tout', style: TextStyle(color: Colors.orange)),
-=======
-                  onNavTap(5);
+                  onNavTap(7);
                 },
                 child: const Text(
-                  'Voir tout', 
+                  'Voir tout',
                   style: TextStyle(color: Color(0xFFF06424), fontWeight: FontWeight.bold),
                 ),
->>>>>>> origin/develop
               ),
             ],
           ),
