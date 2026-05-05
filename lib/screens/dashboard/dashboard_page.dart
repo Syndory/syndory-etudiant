@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
+import 'package:syndory_etudiant/components/appTheme.dart';
 import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart'; 
 import 'package:syndory_etudiant/mocks/dashboardMockData.dart';
 import 'package:syndory_etudiant/components/dashboard/empty_state_card.dart';
@@ -8,6 +9,7 @@ import 'package:syndory_etudiant/components/dashboard/next_course_card.dart';
 import 'package:syndory_etudiant/components/dashboard/timetable_section.dart';
 import 'package:syndory_etudiant/components/dashboard/stats_grid_section.dart';
 import 'package:syndory_etudiant/components/dashboard/announcements_section.dart';
+import 'package:syndory_etudiant/screens/annonces/annonces_screen.dart';
 import 'package:syndory_etudiant/screens/notification/notifications_screen.dart';
 
 class DashboardPage extends StatefulWidget { 
@@ -177,7 +179,7 @@ class _PlaceholderStats extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      height: 100, // Ajusté pour être plus cohérent
+      height: 100,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/appNavbarNoReturn.dart';
@@ -8,18 +9,34 @@ import 'package:syndory_etudiant/components/justificatif/historiqueItem.dart';
 import 'package:syndory_etudiant/components/justificatif/sectionLabel.dart';
 import 'package:syndory_etudiant/models/justificatifModels.dart';
 
+typedef SubmitJustificationCallback =
+    Future<void> Function({
+      required String presenceId,
+      required String fileName,
+      String? filePath,
+      List<int>? fileBytes,
+      String? reason,
+      required void Function(double progress) onProgress,
+    });
+
 enum _UploadState { idle, uploading, done, error }
 
 class JustificatifsUploadScreen extends StatefulWidget {
   final AbsenceEnAttente absence;
+  final List<JustificatifHistorique> historiqueEntries;
   final int navIndex;
   final ValueChanged<int>? onNavTap;
+  final SubmitJustificationCallback? onSubmit;
+  final Future<void> Function()? onSubmitted;
 
   const JustificatifsUploadScreen({
     super.key,
     required this.absence,
+    this.historiqueEntries = const [],
     this.navIndex = 0,
     this.onNavTap,
+    this.onSubmit,
+    this.onSubmitted,
   });
 
   @override
@@ -27,18 +44,16 @@ class JustificatifsUploadScreen extends StatefulWidget {
       _JustificatifsUploadScreenState();
 }
 
-class _JustificatifsUploadScreenState
-    extends State<JustificatifsUploadScreen> {
+class _JustificatifsUploadScreenState extends State<JustificatifsUploadScreen> {
   _UploadState _state = _UploadState.idle;
-  PickedFile? _pickedFile; // fichier réel sélectionné via le picker
+  PickedFile? _pickedFile;
   double _progress = 0;
   String? _errorMessage;
   final TextEditingController _commentCtrl = TextEditingController();
 
-  // ── Sélection du fichier via le picker natif ─────────────────────────────
   Future<void> _pickFile() async {
     final file = await pickJustificatifFile();
-    if (file == null) return; // l'utilisateur a annulé
+    if (file == null || !mounted) return;
     setState(() {
       _pickedFile = file;
       _state = _UploadState.idle;
@@ -47,17 +62,19 @@ class _JustificatifsUploadScreenState
     });
   }
 
-  // ── Annuler et réinitialiser ─────────────────────────────────────────────
-  void _cancel() => setState(() {
-        _pickedFile = null;
-        _state = _UploadState.idle;
-        _progress = 0;
-        _errorMessage = null;
-      });
+  void _cancel() {
+    setState(() {
+      _pickedFile = null;
+      _state = _UploadState.idle;
+      _progress = 0;
+      _errorMessage = null;
+    });
+  }
 
-  // ── Soumettre ────────────────────────────────────────────────────────────
   Future<void> _submit() async {
-    if (_pickedFile == null) return;
+    final pickedFile = _pickedFile;
+    final submitCallback = widget.onSubmit;
+    if (pickedFile == null || submitCallback == null) return;
 
     setState(() {
       _state = _UploadState.uploading;
@@ -65,18 +82,30 @@ class _JustificatifsUploadScreenState
       _errorMessage = null;
     });
 
+    final reason = _commentCtrl.text.trim();
     try {
-      await uploadJustificatif(
-        pickedFile: _pickedFile!,
-        absenceId: widget.absence.id,
-        commentaire: _commentCtrl.text.trim().isEmpty
-            ? null
-            : _commentCtrl.text.trim(),
-        onProgress: (p) => setState(() => _progress = p),
+      await submitCallback(
+        presenceId: widget.absence.id,
+        fileName: pickedFile.name,
+        filePath: pickedFile.path,
+        reason: reason.isEmpty ? null : reason,
+        onProgress: (progress) {
+          if (!mounted) return;
+          setState(() {
+            _progress = progress;
+          });
+        },
       );
 
       if (!mounted) return;
-      setState(() => _state = _UploadState.done);
+      await widget.onSubmitted?.call();
+      if (!mounted) return;
+
+      setState(() {
+        _state = _UploadState.done;
+        _pickedFile = null;
+      });
+      _commentCtrl.clear();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -84,11 +113,17 @@ class _JustificatifsUploadScreenState
           backgroundColor: AppColors.success,
         ),
       );
-    } catch (e) {
+    } on DioException {
       if (!mounted) return;
       setState(() {
         _state = _UploadState.error;
-        _errorMessage = "Échec de l'envoi. Vérifiez votre connexion.";
+        _errorMessage = "Échec de l'envoi. Vérifie la configuration API.";
+      });
+    } on StateError {
+      if (!mounted) return;
+      setState(() {
+        _state = _UploadState.error;
+        _errorMessage = "Échec de l'envoi. Vérifie la configuration API.";
       });
     }
   }
@@ -101,13 +136,16 @@ class _JustificatifsUploadScreenState
 
   @override
   Widget build(BuildContext context) {
-    final bool isUploading = _state == _UploadState.uploading;
-    final bool isDone = _state == _UploadState.done;
-    final bool canSubmit = _pickedFile != null && !isUploading && !isDone;
+    final isUploading = _state == _UploadState.uploading;
+    final isDone = _state == _UploadState.done;
+    final canSubmit = _pickedFile != null && !isUploading && !isDone;
 
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
-      appBar: AppNavBarNoReturn(title: "Justificatifs d'absence", onNotificationPressed: () {  },),
+      appBar: AppNavBarNoReturn(
+        title: "Justificatifs d'absence",
+        onNotificationPressed: () {},
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -116,27 +154,20 @@ class _JustificatifsUploadScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-
-              // ── Absence à justifier ──────────────────────────────────
               const SectionLabel(title: 'Absence à justifier'),
               const SizedBox(height: 10),
               AbsenceCard(absence: widget.absence),
               const SizedBox(height: 24),
-
-              // ── Zone de dépôt ────────────────────────────────────────
               const SectionLabel(title: 'Déposer le justificatif'),
               const SizedBox(height: 10),
-
               if (_pickedFile == null)
                 FileUploadZoneEmpty(onTap: _pickFile)
               else
                 FileUploadZoneUploading(
-                  pickedFile: _pickedFile!, // ← PickedFile réel, plus de fileName/fileSize
+                  pickedFile: _pickedFile!,
                   progress: _progress,
                   onCancel: isUploading ? null : _cancel,
                 ),
-
-              // ── Message d'erreur ─────────────────────────────────────
               if (_errorMessage != null) ...[
                 const SizedBox(height: 10),
                 Container(
@@ -145,12 +176,16 @@ class _JustificatifsUploadScreenState
                     color: AppColors.danger.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                        color: AppColors.danger.withOpacity(0.3)),
+                      color: AppColors.danger.withOpacity(0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.error_outline,
-                          color: AppColors.danger, size: 16),
+                      const Icon(
+                        Icons.error_outline,
+                        color: AppColors.danger,
+                        size: 16,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -166,10 +201,7 @@ class _JustificatifsUploadScreenState
                   ),
                 ),
               ],
-
               const SizedBox(height: 16),
-
-              // ── Commentaire ──────────────────────────────────────────
               TextField(
                 controller: _commentCtrl,
                 maxLines: 3,
@@ -196,7 +228,9 @@ class _JustificatifsUploadScreenState
                   filled: true,
                   fillColor: AppColors.white,
                   contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 12),
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: AppColors.gray4),
@@ -208,19 +242,17 @@ class _JustificatifsUploadScreenState
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
-                        color: AppColors.primary, width: 1.5),
+                      color: AppColors.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              // ── Bouton soumettre ─────────────────────────────────────
               SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: isUploading
-                    // En cours → orange + spinner
                     ? ElevatedButton.icon(
                         onPressed: null,
                         icon: const SizedBox(
@@ -250,55 +282,53 @@ class _JustificatifsUploadScreenState
                         ),
                       )
                     : isDone
-                        // Succès → vert
-                        ? ElevatedButton.icon(
-                            onPressed: null,
-                            icon: const Icon(Icons.check_circle_outline,
-                                color: AppColors.white, size: 18),
-                            label: const Text(
-                              'Justificatif envoyé',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
-                                color: AppColors.white,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.success,
-                              disabledBackgroundColor: AppColors.success,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
-                          )
-                        // Idle → navy, actif seulement si fichier choisi
-                        : ElevatedButton(
-                            onPressed: canSubmit ? _submit : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              disabledBackgroundColor: AppColors.gray4,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: const Text(
-                              'Soumettre le justificatif',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 15,
-                                color: AppColors.white,
-                              ),
-                            ),
+                    ? ElevatedButton.icon(
+                        onPressed: null,
+                        icon: const Icon(
+                          Icons.check_circle_outline,
+                          color: AppColors.white,
+                          size: 18,
+                        ),
+                        label: const Text(
+                          'Justificatif envoyé',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            color: AppColors.white,
                           ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.success,
+                          disabledBackgroundColor: AppColors.success,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                      )
+                    : ElevatedButton(
+                        onPressed: canSubmit ? _submit : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          disabledBackgroundColor: AppColors.gray4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Soumettre le justificatif',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            color: AppColors.white,
+                          ),
+                        ),
+                      ),
               ),
-
               const SizedBox(height: 32),
-
-              // ── Historique ───────────────────────────────────────────
               const Text(
                 'Historique',
                 style: TextStyle(
@@ -309,7 +339,7 @@ class _JustificatifsUploadScreenState
                 ),
               ),
               const SizedBox(height: 12),
-              ...mockHistoriqueCompact.map((e) => HistoriqueItem(entry: e)),
+              ...widget.historiqueEntries.map((e) => HistoriqueItem(entry: e)),
               const SizedBox(height: 24),
             ],
           ),
