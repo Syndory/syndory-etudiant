@@ -133,7 +133,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                       NextCourseCard(courseData: nextCourse),
-                      const TimetableSection(),
+                      TimetableSection(timetable: data.timetable),
                     ] else ...[
                       const EmptyStateCard(),
                     ],
@@ -151,6 +151,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                     AnnouncementsSection(
                       onNavTap: widget.onNavTap!,
+                      annonces: data.lastAnnonces,
                     ),
                     const Padding(
                       padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
@@ -163,11 +164,15 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                     ),
-                    const RecentDocumentsSection(),
+                    RecentDocumentsSection(
+                      documents: data.recentDocuments,
+                    ),
 
                     StatsGridSection(
                       navIndex: widget.navIndex,
                       onNavTap: widget.onNavTap!,
+                      presenceRate: data.presenceRate,
+                      devoirsCount: data.devoirsCount,
                     ),
                     const SizedBox(height: 30),
                   ],

@@ -9,6 +9,8 @@ class DashboardData {
   final int devoirsCount;
   final double presenceRate;
   final List<Map<String, dynamic>> lastAnnonces;
+  final List<Map<String, dynamic>> recentDocuments;
+  final List<Map<String, dynamic>> timetable;
 
   DashboardData({
     required this.user,
@@ -17,6 +19,8 @@ class DashboardData {
     required this.devoirsCount,
     required this.presenceRate,
     required this.lastAnnonces,
+    this.recentDocuments = const [],
+    this.timetable = const [],
   });
 }
 
@@ -44,6 +48,8 @@ class DashboardService {
         _fetchDevoirsCount(),
         _fetchPresenceRate(userId),
         _fetchAnnonces(),
+        _fetchTimetable(),
+        _fetchRecentDocuments(),
       ]);
 
       final userProfile = futures[0] as Map<String, dynamic>? ?? {};
@@ -52,20 +58,24 @@ class DashboardService {
       final devoirsCount = futures[3] as int? ?? 0;
       final presenceRate = futures[4] as double? ?? 0.0;
       final lastAnnonces = futures[5] as List<Map<String, dynamic>>? ?? [];
+      final timetable = futures[6] as List<Map<String, dynamic>>? ?? [];
+      final recentDocuments = futures[7] as List<Map<String, dynamic>>? ?? [];
 
       return DashboardData(
         user: {
           "id": userId,
           "nom": "${userProfile['first_name'] ?? ''} ${userProfile['last_name'] ?? ''}".trim(),
           "role": userProfile['role'] ?? 'etudiant',
-          "filiere": userProfile['filiere_name'] ?? "Génie Logiciel — L3", // TODO: Jointure dynamique si nécessaire
-          "universite": "Université d'Abomey-Calavi", // Statique pour l'instant
+          "filiere": userProfile['filiere_name'] ?? "Génie Logiciel — L3",
+          "universite": "Université d'Abomey-Calavi",
         },
         activeSession: activeSession,
         nextCourse: nextCourse,
         devoirsCount: devoirsCount,
         presenceRate: presenceRate,
         lastAnnonces: lastAnnonces,
+        timetable: timetable,
+        recentDocuments: recentDocuments,
       );
     } on DioException catch (e) {
       throw _handleDioError(e);
@@ -237,6 +247,72 @@ class DashboardService {
           "titre": json['title'] ?? 'Annonce sans titre', // En supposant que le champ est 'title'
           "date": dateStr,
           "est_nouveau": false, // Vous pouvez ajouter une logique de date < 24h
+        };
+      }).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  // 7. Emploi du temps du jour
+  Future<List<Map<String, dynamic>>> _fetchTimetable() async {
+    try {
+      final today = DateTime.now().toIso8601String().split('T')[0];
+      final response = await _dio.get(
+        '/seances',
+        queryParameters: {
+          'date': 'eq.$today',
+          'status': 'eq.publié',
+          'order': 'start_time.asc',
+          'select': 'id,start_time,end_time,matieres(name),salles(name)',
+        },
+      );
+      final data = response.data as List<dynamic>;
+      return data.map((json) {
+        final start = json['start_time'] != null ? (json['start_time'] as String).substring(0, 5) : '--:--';
+        final end   = json['end_time']   != null ? (json['end_time']   as String).substring(0, 5) : '--:--';
+        return {
+          'horaire':  '$start - $end',
+          'matiere':  json['matieres']?['name'] ?? 'Cours',
+          'salle':    json['salles']?['name']   ?? 'Salle inconnue',
+        };
+      }).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  // 8. Documents récents
+  Future<List<Map<String, dynamic>>> _fetchRecentDocuments() async {
+    try {
+      final response = await _dio.get(
+        '/ressources',
+        queryParameters: {
+          'order': 'created_at.desc',
+          'select': 'id,title,file_url,created_at',
+          'limit': 3,
+        },
+      );
+      final data = response.data as List<dynamic>;
+      return data.map((json) {
+        final date = DateTime.tryParse(json['created_at'] ?? '');
+        String dateInfo = '';
+        if (date != null) {
+          final diff = DateTime.now().difference(date);
+          if (diff.inDays == 0) {
+            dateInfo = "Ajouté aujourd'hui";
+          } else if (diff.inDays == 1) {
+            dateInfo = 'Ajouté hier';
+          } else {
+            dateInfo = 'Ajouté il y a ${diff.inDays} jours';
+          }
+        }
+        final fileUrl = json['file_url'] as String? ?? '';
+        final fileName = fileUrl.isNotEmpty ? fileUrl.split('/').last.split('?').first : (json['title'] ?? 'document');
+        return {
+          'nom':  fileName,
+          'info': dateInfo,
+          'url':  fileUrl,
         };
       }).toList();
     } catch (_) {

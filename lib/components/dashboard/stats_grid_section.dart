@@ -5,11 +5,15 @@ class StatsGridSection extends StatelessWidget {
   // 1. Déclarer les variables au niveau de la classe (pas dans le build)
   final int navIndex;
   final ValueChanged<int> onNavTap;
+  final double presenceRate;
+  final int devoirsCount;
 
   const StatsGridSection({
     super.key,
     required this.navIndex,
     required this.onNavTap,
+    required this.presenceRate,
+    required this.devoirsCount,
   });
 
   @override
@@ -44,7 +48,7 @@ class StatsGridSection extends StatelessWidget {
                         height: 75,
                         width: 75,
                         child: CircularProgressIndicator(
-                          value: 0.85,
+                          value: presenceRate,
                           strokeWidth: 8,
                           backgroundColor: Colors.grey[200],
                           valueColor: const AlwaysStoppedAnimation<Color>(
@@ -52,9 +56,9 @@ class StatsGridSection extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const Text(
-                        "85%",
-                        style: TextStyle(
+                      Text(
+                        "${(presenceRate * 100).toStringAsFixed(0)}%",
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                           color: Color(0xFF052A36),
@@ -92,9 +96,9 @@ class StatsGridSection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    "3",
-                    style: TextStyle(
+                  Text(
+                    "$devoirsCount",
+                    style: const TextStyle(
                       fontSize: 42,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF052A36),
