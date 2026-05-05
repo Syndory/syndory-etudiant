@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/appTheme.dart';
+import 'package:syndory_etudiant/components/apptheme.dart';
 import 'package:syndory_etudiant/models/justificatifModels.dart';
 
 class StatusBadge extends StatelessWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/appTheme.dart';
+import 'package:syndory_etudiant/components/apptheme.dart';
 
 // donnees fictives des annonces (a remplacer par l'API)
 final List<Map<String, dynamic>> mockAnnonces = [

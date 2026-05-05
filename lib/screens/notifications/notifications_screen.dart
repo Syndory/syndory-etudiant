@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:syndory_etudiant/components/appTheme.dart';
+import 'package:syndory_etudiant/components/apptheme.dart';
 import 'package:syndory_etudiant/services/notification_service.dart';
 
 // page qui liste les notifications personnelles de l'etudiant
