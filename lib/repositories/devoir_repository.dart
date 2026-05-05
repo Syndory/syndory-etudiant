@@ -29,8 +29,8 @@ class DevoirRepository {
       final response = await _dio.get(
         '/matieres',
         queryParameters: {
-          'select': 'id,nom,code,created_at',
-          'order': 'nom.asc',
+          'select': 'id,nom:name,code,created_at',
+          'order': 'name.asc',
         },
       );
 
@@ -68,8 +68,11 @@ class DevoirRepository {
       case 500:
         return Exception('Erreur serveur. Réessayez dans quelques instants.');
       default:
+        final serverMessage = e.response?.data is Map 
+            ? e.response?.data['message'] 
+            : null;
         return Exception(
-          'Erreur inattendue (${statusCode ?? "inconnue"}) : ${e.message}',
+          'Erreur inattendue (${statusCode ?? "inconnue"}) : ${serverMessage ?? e.message}',
         );
     }
   }
