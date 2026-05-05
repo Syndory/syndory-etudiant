@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
-import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/components/appTheme.dart';
 import 'package:syndory_etudiant/screens/attendance/attendanceScreen.dart';
 import 'package:syndory_etudiant/screens/attendance/emptyAttendanceScreen.dart';
+import 'package:syndory_etudiant/screens/auth/login_screen.dart';
 import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';
 import 'package:syndory_etudiant/screens/calendar/calendar_page.dart';
 import 'package:syndory_etudiant/screens/devoir/devoirs_screen.dart';
 import 'package:syndory_etudiant/screens/justificatif/justificatifs_tab.dart';
 import 'package:syndory_etudiant/screens/matieres/matieres_screen.dart';
+import 'package:syndory_etudiant/screens/profile/profile_screen.dart';
 import 'package:syndory_etudiant/screens/resources/resources_page.dart';
 import 'package:syndory_etudiant/screens/profil/profile_page.dart';
 import 'package:syndory_etudiant/profile/controllers/profile_controller.dart';
@@ -28,14 +29,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => ProfileController())],
-      child: MaterialApp(
-        title: 'Syndory Étudiant',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        home: const AppShell(),
-      ),
+    return MaterialApp(
+      title: 'Syndory Étudiant',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      initialRoute: '/',
+      routes: {
+        '/': (_) => const LoginScreen(),
+        '/home': (_) => const AppShell(),
+      },
     );
   }
 }
@@ -62,9 +64,12 @@ class _AppShellState extends State<AppShell> {
           DashboardPage(navIndex: _currentIndex, onNavTap: _onNavTap),
           CalendarPage(navIndex: _currentIndex, onNavTap: _onNavTap),
           JustificatifsTab(navIndex: _currentIndex, onNavTap: _onNavTap),
-          AttendanceTab(navIndex: _currentIndex, onNavTap: _onNavTap),
-          MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
-          AnnouncementsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
+          _AttendanceTab(navIndex: _currentIndex, onNavTap: _onNavTap),
+           MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
+           DevoirsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
+           ResourcesPage(navIndex: _currentIndex, onNavTap: _onNavTap),
+          ProfileScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
+           
         ],
       ),
     );
