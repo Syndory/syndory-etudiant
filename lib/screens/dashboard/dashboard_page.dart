@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/appTheme.dart';
-import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart'; 
+import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
 import 'package:syndory_etudiant/mocks/dashboardMockData.dart';
 import 'package:syndory_etudiant/components/dashboard/empty_state_card.dart';
 import 'package:syndory_etudiant/components/dashboard/active_session_banner.dart';
@@ -9,16 +9,18 @@ import 'package:syndory_etudiant/components/dashboard/next_course_card.dart';
 import 'package:syndory_etudiant/components/dashboard/timetable_section.dart';
 import 'package:syndory_etudiant/components/dashboard/stats_grid_section.dart';
 import 'package:syndory_etudiant/components/dashboard/announcements_section.dart';
-import 'package:syndory_etudiant/screens/annonces/annonces_screen.dart';
-import 'package:syndory_etudiant/screens/notification/notifications_screen.dart';
+// Notre écran de notifications (Dio + Supabase)
+import 'package:syndory_etudiant/screens/notifications/notifications_screen.dart';
+// Service pour recuperer le nombre de notifications non lues
+import 'package:syndory_etudiant/services/notification_service.dart';
 
-class DashboardPage extends StatefulWidget { 
+class DashboardPage extends StatefulWidget {
   final int navIndex;
   final ValueChanged<int>? onNavTap;
 
   const DashboardPage({
     super.key,
-    this.navIndex = 0, 
+    this.navIndex = 0,
     this.onNavTap,
   });
 
@@ -27,6 +29,29 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  // service pour les notifications
+  final _notifService = NotificationService();
+
+  // nombre de notifications non lues — affiche le badge sur la cloche
+  int _unreadCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // on charge le compteur des non-lues au demarrage
+    _loadUnreadCount();
+  }
+
+  // recupere le nombre de notifications non lues depuis Supabase via Dio
+  Future<void> _loadUnreadCount() async {
+    try {
+      final count = await _notifService.fetchUnreadCount();
+      if (mounted) setState(() => _unreadCount = count);
+    } catch (_) {
+      // si l'API ne repond pas on garde 0 — pas de crash
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final activeSession = MockData.activeSession;
@@ -40,9 +65,9 @@ class _DashboardPageState extends State<DashboardPage> {
             padding: EdgeInsets.zero,
             children: [
               _buildHeader(user, nextCourse),
-              
+
               if (activeSession != null) const ActiveSessionBanner(),
-              
+
               // Zone de contenu dynamique selon le prochain cours
               if (nextCourse != null) ...[
                 const Padding(
@@ -80,18 +105,18 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Text(
                   "Documents récents",
                   style: TextStyle(
-                    fontSize: 18, 
-                    fontWeight: FontWeight.bold, 
-                    color: Color(0xFF052A36)
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF052A36),
                   ),
                 ),
               ),
               const RecentDocumentsSection(),
-              
-               StatsGridSection(
-                  navIndex: widget.navIndex,
-                  onNavTap: widget.onNavTap!,
-                ),
+
+              StatsGridSection(
+                navIndex: widget.navIndex,
+                onNavTap: widget.onNavTap!,
+              ),
               const SizedBox(height: 30),
             ],
           ),
@@ -118,21 +143,24 @@ class _DashboardPageState extends State<DashboardPage> {
                   const Text(
                     "Syndory",
                     style: TextStyle(
-                      color: Color(0xFFF06424), 
-                      fontWeight: FontWeight.bold, 
-                      fontSize: 18
+                      color: Color(0xFFF06424),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
                   ),
                   Text(
                     "Bonjour, ${user['nom']}",
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-          
+
           Row(
             children: [
               if (user['role'] == 'responsable')
@@ -148,18 +176,52 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: TextStyle(color: Colors.white, fontSize: 10),
                   ),
                 ),
-              
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
+
+              // Cloche avec badge de notifications non lues
+              GestureDetector(
+                onTap: () async {
+                  await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+                    MaterialPageRoute(builder: (_) => const NotificationsScreen()),
                   );
+                  // on rafraichit le badge quand on revient de la page notifications
+                  _loadUnreadCount();
                 },
-                icon: const Icon(
-                  Icons.notifications_none_rounded, 
-                  color: Color(0xFF667A81), 
-                  size: 28
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(
+                        Icons.notifications_none_rounded,
+                        color: Color(0xFF667A81),
+                        size: 28,
+                      ),
+                      // badge rouge — visible seulement s'il y a des notifs non lues
+                      if (_unreadCount > 0)
+                        Positioned(
+                          right: -4,
+                          top: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                            child: Text(
+                              _unreadCount > 9 ? '9+' : '$_unreadCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ],
