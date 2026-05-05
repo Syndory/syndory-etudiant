@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
+import 'package:syndory_etudiant/components/appTheme.dart';
 import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
 import 'package:syndory_etudiant/mocks/dashboardMockData.dart';
 import 'package:syndory_etudiant/components/dashboard/empty_state_card.dart';
