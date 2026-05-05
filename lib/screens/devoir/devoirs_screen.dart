@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syndory_etudiant/providers/devoir_provider.dart';
 import 'package:syndory_etudiant/components/devoirs/devoirs_body.dart';
