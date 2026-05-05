@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/components/appTheme.dart';
 
 // ─── Modèle fichier sélectionné ───────────────────────────────────────────────
 class PickedFile {

@@ -1,21 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+// pour afficher les dates en francais (ex : "3 mai" au lieu de "3 May")
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
-import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/components/appTheme.dart';
 import 'package:syndory_etudiant/screens/attendance/attendanceScreen.dart';
 import 'package:syndory_etudiant/screens/attendance/emptyAttendanceScreen.dart';
+import 'package:syndory_etudiant/screens/auth/login_screen.dart';
 import 'package:syndory_etudiant/screens/dashboard/dashboard_page.dart';
 import 'package:syndory_etudiant/screens/calendar/calendar_page.dart';
 import 'package:syndory_etudiant/screens/devoir/devoirs_screen.dart';
 import 'package:syndory_etudiant/screens/justificatif/justificatifs_tab.dart';
 import 'package:syndory_etudiant/screens/matieres/matieres_screen.dart';
+import 'package:syndory_etudiant/screens/profile/profile_screen.dart';
 import 'package:syndory_etudiant/screens/resources/resources_page.dart';
 import 'package:syndory_etudiant/screens/profil/profile_page.dart';
 import 'package:syndory_etudiant/profile/controllers/profile_controller.dart';
 import 'package:syndory_etudiant/screens/announcements/announcements_screen.dart';
 import 'package:syndory_etudiant/providers/devoir_provider.dart';
 
-void main() {
+// main() est async pour initialiser la locale française avant le demarrage
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // charge les donnees de localisation pour afficher les dates en francais
+  await initializeDateFormatting('fr_FR', null);
+
   runApp(
     const MyApp(),
   );
@@ -35,7 +45,11 @@ class MyApp extends StatelessWidget {
         title: 'Syndory Étudiant',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const AppShell(),
+        initialRoute: '/',
+        routes: {
+          '/': (_) => const LoginScreen(),
+          '/home': (_) => const AppShell(),
+        },
       ),
     );
   }
@@ -65,7 +79,10 @@ class _AppShellState extends State<AppShell> {
           JustificatifsTab(navIndex: _currentIndex, onNavTap: _onNavTap),
           AttendanceTab(navIndex: _currentIndex, onNavTap: _onNavTap),
           MatieresScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
+          DevoirsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
+          ResourcesPage(navIndex: _currentIndex, onNavTap: _onNavTap),
           AnnouncementsScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
+          ProfileScreen(navIndex: _currentIndex, onNavTap: _onNavTap),
         ],
       ),
     );
