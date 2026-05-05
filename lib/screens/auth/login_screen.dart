@@ -1,314 +1,279 @@
 import 'package:flutter/material.dart';
-import 'package:syndory_etudiant/components/appTheme.dart';
+import '../../components/apptheme.dart';
+import '../../services/auth_service.dart';
 
-// page de connexion de l'application
+/// ============================================================
+///  LoginScreen — Authentification Supabase
+///
+///  Utilise [AuthService] pour se connecter via email/mot de passe.
+///  Après login réussi, notifie le widget parent via [onLoginSuccess].
+/// ============================================================
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback onLoginSuccess;
+
+  const LoginScreen({super.key, required this.onLoginSuccess});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // cle pour valider le formulaire
   final _formKey = GlobalKey<FormState>();
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  bool _obscurePassword = true;
 
-  // controlleurs pour recuperer ce que l'utilisateur tape
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  bool _obscurePassword = true; // pour cacher ou montrer le mot de passe
-  bool _isLoading = false;
+  final _auth = AuthService.instance;
 
   @override
   void dispose() {
-    // on libere les controlleurs quand la page est fermee
-    _emailController.dispose();
-    _passwordController.dispose();
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
     super.dispose();
   }
 
-  // fonction appelee quand on clique sur "Se connecter"
-  void _onLogin() async {
-    // on verifie que le formulaire est valide
+  Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    final success = await _auth.signIn(
+      _emailCtrl.text.trim(),
+      _passwordCtrl.text,
+    );
 
-    // simulation d'un appel API (a remplacer plus tard par le vrai backend)
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    // on redirige vers la page principale
-    Navigator.of(context).pushReplacementNamed('/home');
+    if (success && mounted) {
+      widget.onLoginSuccess();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgPrimary,
+      backgroundColor: AppColors.primary,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 60),
-              _buildHeader(),
-              const SizedBox(height: 48),
-              _buildForm(),
-              const SizedBox(height: 32),
-              _buildLoginButton(),
-              const SizedBox(height: 20),
-              _buildForgotPassword(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 24),
 
-  // partie haute de la page avec le logo et le titre
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // logo "S" de Syndory
-        Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: const Center(
-            child: Text(
-              'S',
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                fontFamily: 'Inter',
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 28),
-        // titre de bienvenue
-        const Text(
-          'Bienvenue sur\nSyndory',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
-            fontSize: 28,
-            color: AppColors.primary,
-            height: 1.2,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Connectez-vous avec vos identifiants\nfournis par l\'administration.',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 14,
-            color: AppColors.textSecondary,
-            height: 1.5,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // formulaire avec les champs email et mot de passe
-  Widget _buildForm() {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-
-          _fieldLabel('Adresse e-mail'),
-          const SizedBox(height: 8),
-
-          // champ email
-          TextFormField(
-            controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 14,
-              color: AppColors.gray1,
-            ),
-            decoration: InputDecoration(
-              hintText: 'exemple@universite.bj',
-              hintStyle: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 14,
-                color: AppColors.gray4,
-              ),
-              prefixIcon: const Icon(Icons.email_outlined, color: AppColors.gray3, size: 20),
-              filled: true,
-              fillColor: AppColors.white,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.gray4.withOpacity(0.5)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-              ),
-              errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.danger)),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
-              ),
-            ),
-            // verification du champ email
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) return 'Veuillez saisir votre e-mail';
-              if (!value.contains('@')) return 'Adresse e-mail invalide';
-              return null;
-            },
-          ),
-
-          const SizedBox(height: 20),
-          _fieldLabel('Mot de passe'),
-          const SizedBox(height: 8),
-
-          // champ mot de passe avec option pour voir/cacher
-          TextFormField(
-            controller: _passwordController,
-            obscureText: _obscurePassword,
-            style: const TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 14,
-              color: AppColors.gray1,
-            ),
-            decoration: InputDecoration(
-              hintText: '••••••••',
-              hintStyle: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 14,
-                color: AppColors.gray4,
-              ),
-              prefixIcon: const Icon(Icons.lock_outline, color: AppColors.gray3, size: 20),
-              // bouton oeil pour montrer ou cacher le mot de passe
-              suffixIcon: GestureDetector(
-                onTap: () => setState(() => _obscurePassword = !_obscurePassword),
-                child: Icon(
-                  _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                  color: AppColors.gray3,
-                  size: 20,
+                // ── Logo / Titre ─────────────────────────────────────
+                Center(
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Icon(
+                          Icons.school_rounded,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Syndory',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Espace Étudiant',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withOpacity(0.65),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              filled: true,
-              fillColor: AppColors.white,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.gray4.withOpacity(0.5)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-              ),
-              errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppColors.danger)),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
-              ),
+
+                const SizedBox(height: 48),
+
+                // ── Formulaire ───────────────────────────────────────
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Connexion',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Email
+                        _buildLabel('Adresse e-mail'),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _emailCtrl,
+                          keyboardType: TextInputType.emailAddress,
+                          autocorrect: false,
+                          decoration: _inputDecoration(
+                            hint: 'student1@syndory.com',
+                            icon: Icons.email_outlined,
+                          ),
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) {
+                              return 'Champ requis';
+                            }
+                            if (!v.contains('@')) return 'Email invalide';
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Mot de passe
+                        _buildLabel('Mot de passe'),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _passwordCtrl,
+                          obscureText: _obscurePassword,
+                          decoration: _inputDecoration(
+                            hint: '••••••••',
+                            icon: Icons.lock_outline,
+                          ).copyWith(
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: AppColors.gray3,
+                              ),
+                              onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
+                            ),
+                          ),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Champ requis';
+                            if (v.length < 6) return 'Minimum 6 caractères';
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // Message d'erreur
+                        ListenableBuilder(
+                          listenable: _auth,
+                          builder: (_, __) {
+                            final err = _auth.errorMessage;
+                            if (err == null) return const SizedBox.shrink();
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.error_outline,
+                                      color: AppColors.danger, size: 16),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      err,
+                                      style: const TextStyle(
+                                        color: AppColors.danger,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        // Bouton connexion
+                        ListenableBuilder(
+                          listenable: _auth,
+                          builder: (_, __) {
+                            return ElevatedButton(
+                              onPressed: _auth.isLoading ? null : _handleLogin,
+                              child: _auth.isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('Se connecter'),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+              ],
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Veuillez saisir votre mot de passe';
-              if (value.length < 6) return 'Mot de passe trop court';
-              return null;
-            },
           ),
-        ],
+        ),
       ),
     );
   }
 
-  // widget pour afficher le label au dessus des champs
-  Widget _fieldLabel(String text) {
+  Widget _buildLabel(String text) {
     return Text(
       text,
       style: const TextStyle(
         fontFamily: 'Inter',
-        fontWeight: FontWeight.w600,
         fontSize: 13,
+        fontWeight: FontWeight.w600,
         color: AppColors.primary,
       ),
     );
   }
 
-  // bouton principal de connexion
-  Widget _buildLoginButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _onLogin,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          elevation: 0,
-          disabledBackgroundColor: AppColors.primary.withOpacity(0.6),
-        ),
-        // si ca charge on montre un spinner sinon le texte
-        child: _isLoading
-            ? const SizedBox(
-              width: 22,
-              height: 22,
-              child: CircularProgressIndicator(
-                color: AppColors.white,
-                strokeWidth: 2.5,
-              ),
-            )
-            : const Text(
-                'Se connecter',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                ),
-              ),
+  InputDecoration _inputDecoration({
+    required String hint,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(color: AppColors.gray4, fontSize: 14),
+      prefixIcon: Icon(icon, color: AppColors.gray3, size: 20),
+      filled: true,
+      fillColor: const Color(0xFFF7F8FA),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
-    );
-  }
-
-  // lien mot de passe oublie (pas encore fonctionnel)
-  Widget _buildForgotPassword() {
-    return Center(
-      child: GestureDetector(
-        onTap: () {
-          // TODO: ajouter la page de reinitialisation du mot de passe
-        },
-        child: const Text(
-          'Mot de passe oublie ?',
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 13,
-            color: AppColors.secondary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.danger, width: 1.2),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
     );
   }
