@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:syndory_etudiant/components/appTheme.dart';
 
 // page de connexion de l'application
@@ -35,14 +36,32 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    // simulation d'un appel API (a remplacer plus tard par le vrai backend)
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      // connexion via Supabase Auth
+      await Supabase.instance.client.auth.signInWithPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
 
-    if (!mounted) return;
-    setState(() => _isLoading = false);
+      if (!mounted) return;
+      setState(() => _isLoading = false);
 
-    // on redirige vers la page principale
-    Navigator.of(context).pushReplacementNamed('/home');
+      // on redirige vers la page principale
+      Navigator.of(context).pushReplacementNamed('/home');
+
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      // message d'erreur si la connexion echoue
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Identifiants incorrects. Veuillez reessayer.'),
+          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override

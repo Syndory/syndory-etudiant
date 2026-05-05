@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 // pour afficher les dates en francais (ex : "3 mai" au lieu de "3 May")
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/appTheme.dart';
+import 'package:syndory_etudiant/config/app_config.dart';
 import 'package:syndory_etudiant/screens/attendance/attendanceScreen.dart';
 import 'package:syndory_etudiant/screens/attendance/emptyAttendanceScreen.dart';
 import 'package:syndory_etudiant/screens/auth/login_screen.dart';
@@ -24,6 +26,12 @@ void main() async {
 
   // charge les donnees de localisation pour afficher les dates en francais
   await initializeDateFormatting('fr_FR', null);
+
+  // initialisation de Supabase
+  await Supabase.initialize(
+    url: AppConfig.supabaseUrl,
+    anonKey: AppConfig.supabaseAnonKey,
+  );
 
   runApp(
     ChangeNotifierProvider(

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
-<<<<<<< HEAD
-=======
 import 'package:syndory_etudiant/components/appNavbarNoReturn.dart';
->>>>>>> 9a4aa79ff8bcace6c7f888fb6b22a8de07f37b15
 import 'package:syndory_etudiant/components/appTheme.dart';
 import 'calendar_data.dart';
 import 'calendar_widgets.dart';

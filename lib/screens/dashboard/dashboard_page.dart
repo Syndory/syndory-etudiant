@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
-<<<<<<< HEAD
-import 'package:syndory_etudiant/components/appTheme.dart';
-=======
 import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
->>>>>>> 9a4aa79ff8bcace6c7f888fb6b22a8de07f37b15
 import 'package:syndory_etudiant/mocks/dashboardMockData.dart';
 import 'package:syndory_etudiant/components/dashboard/empty_state_card.dart';
 import 'package:syndory_etudiant/components/dashboard/active_session_banner.dart';
@@ -12,15 +8,10 @@ import 'package:syndory_etudiant/components/dashboard/next_course_card.dart';
 import 'package:syndory_etudiant/components/dashboard/timetable_section.dart';
 import 'package:syndory_etudiant/components/dashboard/stats_grid_section.dart';
 import 'package:syndory_etudiant/components/dashboard/announcements_section.dart';
-<<<<<<< HEAD
-import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
-import 'package:syndory_etudiant/screens/annonces/annonces_screen.dart';
-=======
 // Notre écran de notifications (Dio + Supabase)
 import 'package:syndory_etudiant/screens/notifications/notifications_screen.dart';
 // Service pour recuperer le nombre de notifications non lues
 import 'package:syndory_etudiant/services/notification_service.dart';
->>>>>>> 9a4aa79ff8bcace6c7f888fb6b22a8de07f37b15
 
 class DashboardPage extends StatefulWidget {
   final int navIndex;
@@ -137,92 +128,6 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-<<<<<<< HEAD
-  Widget _buildHeader(Map<String, dynamic> user) {
-    final String nom = user['nom'] ?? '';
-    // on prend juste le prenom (premier mot du nom complet)
-    final String prenom = nom.split(' ').first;
-
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        child: Row(
-          children: [
-            // avatar avec les initiales
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: AppColors.secondary.withOpacity(0.15),
-              child: Text(
-                nom.isNotEmpty ? nom[0].toUpperCase() : 'E',
-                style: const TextStyle(
-                  color: AppColors.secondary,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                  fontFamily: 'Inter',
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // nom de l'app en orange
-                const Text(
-                  'Syndory',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.secondary,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-                Text(
-                  'Bonjour, $prenom',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            // badge responsable si besoin
-            if (user['role'] == 'responsable')
-              Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'Responsable',
-                  style: TextStyle(color: Colors.white, fontSize: 10, fontFamily: 'Inter'),
-                ),
-              ),
-            // cloche de notification
-            GestureDetector(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (_) => const AnnonceScreen(),
-                ));
-              },
-              child: Stack(
-                children: [
-                  const Icon(Icons.notifications_none_outlined,
-                    color: AppColors.primary, size: 26),
-                  // point rouge pour indiquer qu'il y a des nouvelles annonces
-                  Positioned(
-                    right: 0, top: 0,
-                    child: Container(
-                      width: 8, height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppColors.danger,
-                        shape: BoxShape.circle,
-                      ),
-=======
   Widget _buildHeader(Map<String, dynamic> user, dynamic nextCourse) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -248,16 +153,10 @@ class _DashboardPageState extends State<DashboardPage> {
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: Colors.black87,
->>>>>>> 9a4aa79ff8bcace6c7f888fb6b22a8de07f37b15
                     ),
                   ),
                 ],
               ),
-<<<<<<< HEAD
-            ),
-          ],
-        ),
-=======
             ],
           ),
 
@@ -354,7 +253,6 @@ class _PlaceholderStats extends StatelessWidget {
           const SizedBox(height: 5),
           Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ],
->>>>>>> 9a4aa79ff8bcace6c7f888fb6b22a8de07f37b15
       ),
     );
   }
