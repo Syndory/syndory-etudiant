@@ -21,4 +21,7 @@ class SupabaseConfig {
 
   // ── URL de base pour les Edge Functions ────────────────────────
   static String get functionsUrl => '$url/functions/v1';
+
+  // ── URL pour l'authentification Supabase Auth ──────────────────
+  static String get authUrl => '$url/auth/v1';
 }
