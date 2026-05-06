@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
@@ -18,10 +19,18 @@ import 'package:syndory_etudiant/screens/auth/login_screen.dart';
 import 'package:syndory_etudiant/services/auth_service.dart';
 import 'package:syndory_etudiant/providers/devoir_provider.dart';
 import 'package:syndory_etudiant/screens/profile/profile_screen.dart';
+import 'package:syndory_etudiant/config/app_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('fr_FR', null);
+
+  // initialisation de Supabase
+  await Supabase.initialize(
+    url: AppConfig.supabaseUrl,
+    anonKey: AppConfig.supabaseAnonKey,
+  );
+
   runApp(const MyApp());
 }
 

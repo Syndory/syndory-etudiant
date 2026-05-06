@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class RecentDocumentsSection extends StatelessWidget {
-  const RecentDocumentsSection({super.key});
+  final List<Map<String, dynamic>> documents;
+
+  const RecentDocumentsSection({super.key, required this.documents});
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +12,6 @@ class RecentDocumentsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Titre de section
           const Row(
             children: [
               Icon(Icons.description_outlined, color: Colors.blueGrey, size: 22),
@@ -23,18 +24,51 @@ class RecentDocumentsSection extends StatelessWidget {
           ),
           const SizedBox(height: 15),
 
-          // 2. Liste des 3 derniers documents (ici un exemple)
-          _buildDocumentTile(
-            fileName: "MacroEcon_Syllabus_2024.pdf",
-            fileInfo: "2.4 Mo • Ajouté il y a 2 jours",
-          ),
-          // Vous pourriez en ajouter deux autres ici pour respecter le "3 derniers"
+          if (documents.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Text(
+                "Aucun document disponible",
+                style: TextStyle(color: Colors.grey[500], fontStyle: FontStyle.italic),
+              ),
+            )
+          else
+            ...documents.map((doc) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildDocumentTile(
+                fileName: doc['nom'] ?? 'document',
+                fileInfo: doc['info'] ?? '',
+              ),
+            )).toList(),
         ],
       ),
     );
   }
 
   Widget _buildDocumentTile({required String fileName, required String fileInfo}) {
+    // Détermination de l'icône selon l'extension
+    final ext = fileName.split('.').last.toLowerCase();
+    IconData icon;
+    Color iconColor;
+    Color bgColor;
+    if (ext == 'pdf') {
+      icon = Icons.picture_as_pdf;
+      iconColor = Colors.red;
+      bgColor = Colors.red.shade50;
+    } else if (['doc', 'docx'].contains(ext)) {
+      icon = Icons.description;
+      iconColor = Colors.blue;
+      bgColor = Colors.blue.shade50;
+    } else if (['ppt', 'pptx'].contains(ext)) {
+      icon = Icons.slideshow;
+      iconColor = Colors.orange;
+      bgColor = Colors.orange.shade50;
+    } else {
+      icon = Icons.insert_drive_file;
+      iconColor = Colors.blueGrey;
+      bgColor = Colors.blueGrey.shade50;
+    }
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -43,17 +77,12 @@ class RecentDocumentsSection extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Icône PDF stylisée
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.red[50],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.picture_as_pdf, color: Colors.red, size: 24),
+            decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, color: iconColor, size: 24),
           ),
           const SizedBox(width: 15),
-          // Infos fichier
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,10 +100,9 @@ class RecentDocumentsSection extends StatelessWidget {
               ],
             ),
           ),
-          // Bouton téléchargement
           Icon(Icons.file_download_outlined, color: Colors.grey[400]),
         ],
       ),
     );
   }
-}
+}

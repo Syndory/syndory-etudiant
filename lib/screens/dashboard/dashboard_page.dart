@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/dashboard/recent_documents_section.dart';
-import 'package:syndory_etudiant/mocks/dashboardMockData.dart';
 import 'package:syndory_etudiant/components/dashboard/empty_state_card.dart';
 import 'package:syndory_etudiant/components/dashboard/active_session_banner.dart';
 import 'package:syndory_etudiant/components/dashboard/next_course_card.dart';
@@ -12,6 +11,8 @@ import 'package:syndory_etudiant/components/dashboard/announcements_section.dart
 import 'package:syndory_etudiant/screens/notifications/notifications_screen.dart';
 // Service pour recuperer le nombre de notifications non lues
 import 'package:syndory_etudiant/services/notification_service.dart';
+// Service pour recuperer les donnees du dashboard
+import 'package:syndory_etudiant/services/dashboard_service.dart';
 
 class DashboardPage extends StatefulWidget {
   final int navIndex;
@@ -28,103 +29,163 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  // service pour les notifications
   final _notifService = NotificationService();
-
-  // nombre de notifications non lues — affiche le badge sur la cloche
   int _unreadCount = 0;
+  
+  // Future pour les donnees du dashboard
+  late Future<DashboardData> _dashboardDataFuture;
 
   @override
   void initState() {
     super.initState();
-    // on charge le compteur des non-lues au demarrage
     _loadUnreadCount();
+    _dashboardDataFuture = DashboardService.instance.fetchDashboardData();
   }
 
-  // recupere le nombre de notifications non lues depuis Supabase via Dio
   Future<void> _loadUnreadCount() async {
     try {
       final count = await _notifService.fetchUnreadCount();
       if (mounted) setState(() => _unreadCount = count);
     } catch (_) {
-      // si l'API ne repond pas on garde 0 — pas de crash
     }
+  }
+
+  Future<void> _refreshDashboard() async {
+    setState(() {
+      _dashboardDataFuture = DashboardService.instance.fetchDashboardData();
+    });
+    await _loadUnreadCount();
   }
 
   @override
   Widget build(BuildContext context) {
-    final activeSession = MockData.activeSession;
-    final nextCourse = MockData.nextCourse;
-    final user = MockData.currentUser;
+    return FutureBuilder<DashboardData>(
+      future: _dashboardDataFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: Color(0xFFF7F9FC),
+            body: Center(
+              child: CircularProgressIndicator(color: Color(0xFF052A36)),
+            ),
+          );
+        }
 
-    return Column(
-      children: [
-        Expanded(
-          child: ListView(
-            padding: EdgeInsets.zero,
+        if (snapshot.hasError) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFF7F9FC),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Une erreur est survenue :\n${snapshot.error}",
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _refreshDashboard,
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF052A36)),
+                    child: const Text("Réessayer", style: TextStyle(color: Colors.white)),
+                  )
+                ],
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data;
+        if (data == null) {
+          return const Scaffold(
+            backgroundColor: Color(0xFFF7F9FC),
+            body: Center(child: Text("Aucune donnée disponible")),
+          );
+        }
+
+        final activeSession = data.activeSession;
+        final nextCourse = data.nextCourse;
+        final user = data.user;
+
+        return RefreshIndicator(
+          onRefresh: _refreshDashboard,
+          color: const Color(0xFF052A36),
+          child: Column(
             children: [
-              _buildHeader(user, nextCourse),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    _buildHeader(user, nextCourse),
 
-              if (activeSession != null) const ActiveSessionBanner(),
+                    if (activeSession != null) const ActiveSessionBanner(),
 
-              // Zone de contenu dynamique selon le prochain cours
-              if (nextCourse != null) ...[
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    children: [
-                      Expanded(child: _PlaceholderStats(title: "PRÉSENCE", value: "85%")),
-                      SizedBox(width: 15),
-                      Expanded(child: _PlaceholderStats(title: "DEVOIRS", value: "3")),
+                    if (nextCourse != null) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: Row(
+                          children: [
+                            Expanded(child: _PlaceholderStats(title: "PRÉSENCE", value: "${(data.presenceRate * 100).toStringAsFixed(0)}%")),
+                            const SizedBox(width: 15),
+                            Expanded(child: _PlaceholderStats(title: "DEVOIRS", value: "${data.devoirsCount}")),
+                          ],
+                        ),
+                      ),
+                      NextCourseCard(courseData: nextCourse),
+                      TimetableSection(timetable: data.timetable),
+                    ] else ...[
+                      const EmptyStateCard(),
                     ],
-                  ),
-                ),
-                NextCourseCard(courseData: nextCourse),
-                const TimetableSection(),
-              ] else ...[
-                const EmptyStateCard(),
-              ],
 
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
-                child: Text(
-                  "Annonces",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF052A36),
-                  ),
-                ),
-              ),
-              AnnouncementsSection(
-                onNavTap: widget.onNavTap!,
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
-                child: Text(
-                  "Documents récents",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF052A36),
-                  ),
-                ),
-              ),
-              const RecentDocumentsSection(),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
+                      child: Text(
+                        "Annonces",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF052A36),
+                        ),
+                      ),
+                    ),
+                    AnnouncementsSection(
+                      onNavTap: widget.onNavTap!,
+                      annonces: data.lastAnnonces,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
+                      child: Text(
+                        "Documents récents",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF052A36),
+                        ),
+                      ),
+                    ),
+                    RecentDocumentsSection(
+                      documents: data.recentDocuments,
+                    ),
 
-              StatsGridSection(
-                navIndex: widget.navIndex,
-                onNavTap: widget.onNavTap!,
+                    StatsGridSection(
+                      navIndex: widget.navIndex,
+                      onNavTap: widget.onNavTap!,
+                      presenceRate: data.presenceRate,
+                      devoirsCount: data.devoirsCount,
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
-              const SizedBox(height: 30),
+              AppBottomNavBar(
+                currentIndex: widget.navIndex,
+                onTap: widget.onNavTap,
+              ),
             ],
           ),
-        ),
-        AppBottomNavBar(
-          currentIndex: widget.navIndex,
-          onTap: widget.onNavTap,
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -176,14 +237,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
 
-              // Cloche avec badge de notifications non lues
               GestureDetector(
                 onTap: () async {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const NotificationsScreen()),
                   );
-                  // on rafraichit le badge quand on revient de la page notifications
                   _loadUnreadCount();
                 },
                 child: Padding(
@@ -196,7 +255,6 @@ class _DashboardPageState extends State<DashboardPage> {
                         color: Color(0xFF667A81),
                         size: 28,
                       ),
-                      // badge rouge — visible seulement s'il y a des notifs non lues
                       if (_unreadCount > 0)
                         Positioned(
                           right: -4,

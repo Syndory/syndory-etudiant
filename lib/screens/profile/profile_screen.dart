@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
 import 'package:syndory_etudiant/mocks/dashboardMockData.dart';
@@ -26,15 +27,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController _addressController;
 
   bool _isSaving = false; // pour le bouton enregistrer
+  bool _isLoading = true; // pour le chargement initial
+
+  final _supabase = Supabase.instance.client;
 
   @override
   void initState() {
     super.initState();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
     // on pre-remplit les champs avec les donnees du mock
     // plus tard ce sera les vraies donnees de l'API
-    _emailController = TextEditingController(text: 'kofi.hounnou@uac.bj');
-    _phoneController = TextEditingController(text: '+229 97 45 23 81');
     _addressController = TextEditingController(text: 'Gbèdjromèdji, Cotonou, Bénin');
+    _loadProfile(); // on charge le profil depuis Supabase
   }
 
   @override
@@ -43,6 +48,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _phoneController.dispose();
     _addressController.dispose();
     super.dispose();
+  }
+
+  // load profile data from Supabase
+  // if user is not authenticated, stop loading immediately
+  Future<void> _loadProfile() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        // no user logged in, stop the spinner
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final data = await _supabase
+          .from('users')
+          .select()
+          .eq('id', userId)
+          .single();
+
+      if (!mounted) return;
+      setState(() {
+        _emailController.text = data['email'] ?? '';
+        _phoneController.text = data['phone'] ?? '';
+        _isLoading = false;
+      });
+    } catch (e) {
+      // on error, stop the spinner so the screen is not stuck
+      debugPrint('Error loading profile: $e');
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
   }
 
   // on recupere les infos de l'utilisateur depuis le mock
@@ -73,34 +109,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 8),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 8),
 
-            // photo de profil
-            _buildAvatar(),
-            const SizedBox(height: 16),
+                  // photo de profil
+                  _buildAvatar(),
+                  const SizedBox(height: 16),
 
-            // nom et filiere
-            _buildNameSection(),
-            const SizedBox(height: 32),
+                  // nom et filiere
+                  _buildNameSection(),
+                  const SizedBox(height: 32),
 
-            // section infos personnelles (email, telephone, adresse)
-            _buildInfoSection(),
-            const SizedBox(height: 24),
+                  // section infos personnelles (email, telephone, adresse)
+                  _buildInfoSection(),
+                  const SizedBox(height: 24),
 
-            // section securite avec deconnexion
-            _buildSecuritySection(context),
-            const SizedBox(height: 24),
+                  // section securite avec deconnexion
+                  _buildSecuritySection(context),
+                  const SizedBox(height: 24),
 
-            // bouton pour aller voir son assiduité
-            _buildAssiduiteBtn(context),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
+                  // bouton pour aller voir son assiduité
+                  _buildAssiduiteBtn(context),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: widget.navIndex,
         onTap: widget.onNavTap,
@@ -368,24 +406,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _onSave() async {
     setState(() => _isSaving = true);
 
-    // simulation d'un appel API pour sauvegarder
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return;
 
-    if (!mounted) return;
-    setState(() => _isSaving = false);
+      // on sauvegarde dans Supabase
+      await _supabase
+          .from('users')
+          .update({
+            'email': _emailController.text.trim(),
+            'phone': _phoneController.text.trim(),
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', userId);
 
-    // message de confirmation
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profil mis a jour'),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+
+      // message de confirmation
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profil mis a jour'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+
+      // message d'erreur
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erreur lors de la sauvegarde'),
+          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   // dialogue pour changer le mot de passe
   void _showChangePasswordDialog(BuildContext context) {
+    final newPasswordController = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -393,14 +456,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text('Changer de mot de passe',
           style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.primary),
         ),
-        content: const Text(
-          'Disponible une fois le backend connecte.',
-          style: TextStyle(fontFamily: 'Inter', fontSize: 14, color: AppColors.gray2),
+        content: TextField(
+          controller: newPasswordController,
+          obscureText: true,
+          decoration: const InputDecoration(
+            labelText: 'Nouveau mot de passe',
+            border: OutlineInputBorder(),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
+            child: const Text('Annuler', style: TextStyle(color: AppColors.gray3)),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                // changement de mot de passe via Supabase Auth
+                await _supabase.auth.updateUser(
+                  UserAttributes(password: newPasswordController.text),
+                );
+                if (!mounted) return;
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Mot de passe mis a jour'),
+                    backgroundColor: AppColors.success,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              } catch (e) {
+                if (!mounted) return;
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Erreur lors du changement de mot de passe'),
+                    backgroundColor: AppColors.danger,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            child: const Text('Confirmer', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -425,10 +522,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: const Text('Annuler', style: TextStyle(color: AppColors.gray3)),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              // on revient a la page de login et on efface tout l'historique de navigation
-              Navigator.of(context).pushNamedAndRemoveUntil('/', (_) => false);
+              // deconnexion via Supabase Auth
+              // AppRouter detecte automatiquement et redirige vers le login
+              await _supabase.auth.signOut();
             },
             child: const Text('Deconnecter', style: TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600)),
           ),
