@@ -18,6 +18,7 @@ import 'package:syndory_etudiant/screens/announcements/announcements_screen.dart
 import 'package:syndory_etudiant/screens/auth/login_screen.dart';
 import 'package:syndory_etudiant/services/auth_service.dart';
 import 'package:syndory_etudiant/providers/devoir_provider.dart';
+import 'package:syndory_etudiant/providers/announcement_provider.dart';
 import 'package:syndory_etudiant/screens/profile/profile_screen.dart';
 import 'package:syndory_etudiant/config/app_config.dart';
 
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ProfileController()),
         ChangeNotifierProvider(create: (_) => DevoirProvider()),
+        ChangeNotifierProvider(create: (_) => AnnouncementProvider()),
         ChangeNotifierProvider.value(value: AuthService.instance),
       ],
       child: MaterialApp(

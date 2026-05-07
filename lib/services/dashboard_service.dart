@@ -229,6 +229,7 @@ class DashboardService {
       final response = await _dio.get(
         '/annonces',
         queryParameters: {
+          'is_published': 'eq.true',
           'order': 'created_at.desc',
           'select': 'id,title,created_at',
           'limit': 2,
@@ -236,17 +237,19 @@ class DashboardService {
       );
       final data = response.data as List<dynamic>;
       return data.map((json) {
-        // Logique simplifiée pour date (Aujourd'hui, Hier, etc.)
         final date = DateTime.tryParse(json['created_at'] ?? '');
         String dateStr = '';
+        bool isNew = false;
         if (date != null) {
           dateStr = "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
+          // Considéré comme nouveau si moins de 48h
+          isNew = DateTime.now().difference(date).inHours < 48;
         }
         
         return {
-          "titre": json['title'] ?? 'Annonce sans titre', // En supposant que le champ est 'title'
+          "titre": json['title'] ?? 'Annonce sans titre',
           "date": dateStr,
-          "est_nouveau": false, // Vous pouvez ajouter une logique de date < 24h
+          "est_nouveau": isNew,
         };
       }).toList();
     } catch (_) {

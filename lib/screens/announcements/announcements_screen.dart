@@ -1,6 +1,5 @@
-// lib/screens/announcements/announcements_screen.dart
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/appNavbarNoReturn.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
@@ -8,8 +7,8 @@ import 'package:syndory_etudiant/components/announcements/empty_state_announceme
 import 'package:syndory_etudiant/components/announcements/announcements_hero_header.dart';
 import 'package:syndory_etudiant/components/announcements/announcements_filter_tabs.dart';
 import 'package:syndory_etudiant/components/announcements/announcement_card.dart';
-import 'package:syndory_etudiant/mocks/announcements_mock.dart';
 import 'package:syndory_etudiant/models/announcement_model.dart';
+import 'package:syndory_etudiant/providers/announcement_provider.dart';
 import 'package:syndory_etudiant/screens/announcements/announcement_detail_screen.dart';
 
 class AnnouncementsScreen extends StatefulWidget {
@@ -27,20 +26,20 @@ class AnnouncementsScreen extends StatefulWidget {
 }
 
 class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
-  // ── Bascule vide/rempli pour le dev ──────────────────────────────────────
-  bool _hasAnnouncements = true;
-
-  // ── Filtre actif (null = Toutes) ─────────────────────────────────────────
   AnnouncementCategory? _activeFilter;
 
-  List<AnnouncementModel> get _filtered {
-    if (_activeFilter == null) return AnnouncementsMock.announcements;
-    return AnnouncementsMock.announcements
-        .where((a) => a.category == _activeFilter)
-        .toList();
+  @override
+  void initState() {
+    super.initState();
+    // Charger les annonces au démarrage
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AnnouncementProvider>().loadAnnouncements();
+    });
   }
 
-  void _onRefresh() => setState(() => _hasAnnouncements = true);
+  Future<void> _onRefresh() async {
+    await context.read<AnnouncementProvider>().loadAnnouncements();
+  }
 
   void _openDetail(AnnouncementModel a) {
     Navigator.push(
@@ -64,40 +63,63 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
         currentIndex: widget.navIndex,
         onTap: widget.onNavTap,
       ),
-      body: _hasAnnouncements ? _buildListView() : _buildEmptyView(),
+      body: Consumer<AnnouncementProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading && provider.announcements.isEmpty) {
+            return const Center(child: CircularProgressIndicator(color: AppColors.secondary));
+          }
+
+          if (provider.errorMessage != null && provider.announcements.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    provider.errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppColors.gray2),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _onRefresh,
+                    child: const Text("Réessayer"),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          if (provider.announcements.isEmpty) {
+            return _buildEmptyView();
+          }
+
+          return RefreshIndicator(
+            onRefresh: _onRefresh,
+            color: AppColors.secondary,
+            child: _buildListView(provider),
+          );
+        },
+      ),
     );
   }
 
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // État vide
-  // ─────────────────────────────────────────────────────────────────────────
   Widget _buildEmptyView() {
     return EmptyStateAnnouncements(onRefresh: _onRefresh);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Liste des annonces
-  // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildListView() {
-    final items = _filtered;
+  Widget _buildListView(AnnouncementProvider provider) {
+    final items = provider.getFilteredAnnouncements(_activeFilter);
 
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       children: [
-        // Hero "Restez informé"
         const AnnouncementsHeroHeader(),
-
         const SizedBox(height: 16),
-
-        // Onglets de filtre
         AnnouncementsFilterTabs(
           selected: _activeFilter,
           onChanged: (cat) => setState(() => _activeFilter = cat),
         ),
-
         const SizedBox(height: 12),
-
-        // Cartes
         if (items.isEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 60),
@@ -119,7 +141,6 @@ class _AnnouncementsScreenState extends State<AnnouncementsScreen> {
               onTap: () => _openDetail(a),
             ),
           ),
-
         const SizedBox(height: 20),
       ],
     );
