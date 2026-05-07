@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileController extends ChangeNotifier {
   // ─── État édition infos ───────────────────────────────────────────
   bool isEditing = false;
   bool isLoading = false;
+  bool isInitialLoading = true;
 
   // Valeurs actuelles
-  String email = "kwame.mensah@universite.edu";
-  String phone = "+225 01 23 45 67 89";
-  String address = "Cocody, Abidjan, Côte d'Ivoire";
+  String email = "";
+  String phone = "";
+  String address = "";
+
+  // nom et initiales depuis Supabase
+  String firstName = "";
+  String lastName = "";
+  String get fullName => '$firstName $lastName'.trim();
+  String get initiales => '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'.toUpperCase();
 
   // Sauvegarde pour annulation
   late String _savedEmail;
@@ -35,6 +43,42 @@ class ProfileController extends ChangeNotifier {
   bool showOldPassword = false;
   bool showNewPassword = false;
   bool showConfirmPassword = false;
+
+  final _supabase = Supabase.instance.client;
+
+  ProfileController() {
+    // load profile data from Supabase on initialization
+    loadProfile();
+  }
+
+  // load profile data from Supabase
+  Future<void> loadProfile() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) {
+        isInitialLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      final data = await _supabase
+          .from('users')
+          .select()
+          .eq('id', userId)
+          .single();
+
+      email = data['email'] ?? '';
+      phone = data['phone'] ?? '';
+      firstName = data['first_name'] ?? '';
+      lastName = data['last_name'] ?? '';
+      isInitialLoading = false;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading profile: $e');
+      isInitialLoading = false;
+      notifyListeners();
+    }
+  }
 
   // ─── Édition infos ────────────────────────────────────────────────
   void startEditing() {
@@ -93,7 +137,22 @@ class ProfileController extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId != null) {
+        // sauvegarde dans Supabase
+        await _supabase
+            .from('users')
+            .update({
+              'email': email,
+              'phone': phone,
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('id', userId);
+      }
+    } catch (e) {
+      debugPrint('Error saving profile: $e');
+    }
 
     isLoading = false;
     isEditing = false;
@@ -147,10 +206,6 @@ class ProfileController extends ChangeNotifier {
     if (oldPassword.isEmpty) {
       oldPasswordError = "Mot de passe requis";
       valid = false;
-    } else if (oldPassword != "password123") {
-      // Simule une vérification
-      oldPasswordError = "Mot de passe incorrect";
-      valid = false;
     } else {
       oldPasswordError = null;
     }
@@ -180,12 +235,24 @@ class ProfileController extends ChangeNotifier {
     isPasswordLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 100));
+    try {
+      // changement de mot de passe via Supabase Auth
+      await _supabase.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+    } catch (e) {
+      debugPrint('Error changing password: $e');
+    }
 
     isPasswordLoading = false;
     showPasswordFields = false;
     _resetPasswordFields();
     notifyListeners();
     return true;
+  }
+
+  // deconnexion via Supabase Auth
+  Future<void> signOut() async {
+    await _supabase.auth.signOut();
   }
 }

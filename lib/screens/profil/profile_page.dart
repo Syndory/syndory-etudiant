@@ -7,7 +7,6 @@ import '../../components/profil/editable_field.dart';
 import '../../components/profil/info_section.dart';
 import '../../components/profil/password_section.dart';
 
-
 class ProfilePage extends StatelessWidget {
   final int navIndex;
   final ValueChanged<int>? onNavTap;
@@ -45,14 +44,15 @@ class ProfilePage extends StatelessWidget {
           child: Container(color: const Color(0xFFF0F0F0), height: 1),
         ),
       ),
+
       // ─── Body ──────────────────────────────────────────────────────
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           children: [
             // Avatar + Nom
-            const ProfileHeader(
-              name: "Kwame Mensah",
+            ProfileHeader(
+              name: c.fullName,
               filiere: "Informatique",
               niveau: "Master 1",
             ),
@@ -127,7 +127,8 @@ class ProfilePage extends StatelessWidget {
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF6B35),
-                            disabledBackgroundColor: const Color(0xFFFFAA88),
+                            disabledBackgroundColor:
+                                const Color(0xFFFFAA88),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -176,8 +177,8 @@ class ProfilePage extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        // Action déconnexion
+                      onPressed: () async {
+                        await c.signOut();
                       },
                       icon: const Icon(
                         Icons.logout_outlined,
@@ -194,7 +195,8 @@ class ProfilePage extends StatelessWidget {
                       ),
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(
-                          color: const Color(0xFFBA1A1A).withOpacity(0.3),
+                          color:
+                              const Color(0xFFBA1A1A).withOpacity(0.3),
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
