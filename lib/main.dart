@@ -20,12 +20,12 @@ import 'package:syndory_etudiant/services/auth_service.dart';
 import 'package:syndory_etudiant/providers/devoir_provider.dart';
 import 'package:syndory_etudiant/screens/profile/profile_screen.dart';
 import 'package:syndory_etudiant/config/app_config.dart';
+import 'package:syndory_etudiant/controllers/attendance_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('fr_FR', null);
 
-  // initialisation de Supabase
   await Supabase.initialize(
     url: AppConfig.supabaseUrl,
     anonKey: AppConfig.supabaseAnonKey,
@@ -63,9 +63,7 @@ class AppRouter extends StatelessWidget {
     final auth = context.watch<AuthService>();
 
     if (!auth.isAuthenticated) {
-      return LoginScreen(
-        onLoginSuccess: () {},
-      );
+      return LoginScreen(onLoginSuccess: () {});
     }
 
     return const AppShell();
@@ -108,28 +106,53 @@ class AttendanceTab extends StatefulWidget {
   final int navIndex;
   final ValueChanged<int> onNavTap;
 
-  const AttendanceTab({required this.navIndex, required this.onNavTap});
+  const AttendanceTab({
+    super.key,
+    required this.navIndex,
+    required this.onNavTap,
+  });
 
   @override
   State<AttendanceTab> createState() => _AttendanceTabState();
 }
 
 class _AttendanceTabState extends State<AttendanceTab> {
-  bool _hasData = false;
+  final _controller = AttendanceController.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.addListener(_onUpdate);
+      _controller.load();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_onUpdate);
+    super.dispose();
+  }
+
+  void _onUpdate() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (_hasData) {
+    // Données chargées → écran principal
+    if (_controller.hasData) {
       return AttendanceScreen(
         navIndex: widget.navIndex,
         onNavTap: widget.onNavTap,
       );
     }
 
+    // Vide / chargement / erreur → écran vide avec bouton refresh
     return EmptyAttendanceScreen(
       navIndex: widget.navIndex,
       onNavTap: widget.onNavTap,
-      onRefresh: () => setState(() => _hasData = true),
+      onRefresh: () => _controller.refresh(),
     );
   }
 }

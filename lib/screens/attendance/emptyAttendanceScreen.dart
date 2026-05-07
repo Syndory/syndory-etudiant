@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syndory_etudiant/components/appNavbarNoReturn.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
-
+import 'package:syndory_etudiant/controllers/attendance_controller.dart';
 
 class EmptyAttendanceScreen extends StatelessWidget {
   final int navIndex;
@@ -21,31 +21,25 @@ class EmptyAttendanceScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
       appBar: AppNavBarNoReturn(title: 'Assiduité'),
-      // SingleChildScrollView évite le RenderFlex overflow sur petits écrans
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: ConstrainedBox(
-            // hauteur min = écran dispo pour centrer le contenu sur grands écrans
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height -
+              minHeight:
+                  MediaQuery.of(context).size.height -
                   kToolbarHeight -
                   MediaQuery.of(context).padding.top -
-                  72, // hauteur bottom nav
+                  72,
             ),
             child: IntrinsicHeight(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 24),
-
-                  // ── Illustration ────────────────────────────────────────
                   const _IllustrationWidget(),
-
                   const SizedBox(height: 32),
-
-                  // ── Titre ───────────────────────────────────────────────
                   const Text(
                     'Presque là !',
                     style: TextStyle(
@@ -55,10 +49,7 @@ class EmptyAttendanceScreen extends StatelessWidget {
                       letterSpacing: -0.5,
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
-                  // ── Description ─────────────────────────────────────────
                   const Text(
                     'Pas encore de données d\'assiduité. Vos présences s\'afficheront ici dès qu\'elles seront enregistrées par vos professeurs.',
                     textAlign: TextAlign.center,
@@ -68,14 +59,15 @@ class EmptyAttendanceScreen extends StatelessWidget {
                       height: 1.6,
                     ),
                   ),
-
                   const SizedBox(height: 36),
-
-                  // ── Bouton ──────────────────────────────────────────────
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: onRefresh,
+                      onPressed: () {
+                        // Rappelle le refresh du controller + callback parent
+                        AttendanceController.instance.refresh();
+                        onRefresh?.call();
+                      },
                       icon: const Icon(Icons.refresh_rounded, size: 18),
                       label: const Text(
                         'Actualiser la page',
@@ -95,7 +87,6 @@ class EmptyAttendanceScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 24),
                 ],
               ),
@@ -109,10 +100,8 @@ class EmptyAttendanceScreen extends StatelessWidget {
       ),
     );
   }
-
 }
 
-/// Illustration fidèle au design : carte claire + icône orange flottante.
 class _IllustrationWidget extends StatelessWidget {
   const _IllustrationWidget();
 
@@ -124,7 +113,6 @@ class _IllustrationWidget extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // ── Carte blanche de fond (légèrement inclinée) ─────────────────
           Positioned(
             bottom: 0,
             child: Transform.rotate(
@@ -143,7 +131,6 @@ class _IllustrationWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                // Lignes simulant du contenu
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 44, 16, 16),
                   child: Column(
@@ -161,8 +148,6 @@ class _IllustrationWidget extends StatelessWidget {
               ),
             ),
           ),
-
-          // ── Icône orange flottante ───────────────────────────────────────
           Positioned(
             top: 0,
             child: Container(
