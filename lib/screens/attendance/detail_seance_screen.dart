@@ -1,25 +1,124 @@
 import 'package:flutter/material.dart';
-import '../../components/appNavbarNoReturn.dart';
-import '../../components/appBottomNavbar.dart';
-import '../../components/apptheme.dart';
-import '../../components/reusable/session_card.dart';
-import '../../components/reusable/info_row.dart';
-import '../../components/reusable/custom_buttons.dart';
-import '../../models/session_status.dart';
-import '../justificatif/uploadScreen.dart';
-import '../../models/justificatifModels.dart';
+import 'package:syndory_etudiant/components/appBottomNavbar.dart';
+import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/components/reusable/session_card.dart';
+import 'package:syndory_etudiant/components/reusable/info_row.dart';
+import 'package:syndory_etudiant/components/reusable/custom_buttons.dart';
+import 'package:syndory_etudiant/models/session_status.dart';
+import 'package:syndory_etudiant/screens/justificatif/uploadScreen.dart';
+import 'package:syndory_etudiant/models/justificatifModels.dart';
 
 class DetailSeanceScreen extends StatelessWidget {
   final SessionStatus status;
   final String courseName;
   final String professorName;
 
+  // ── Données réelles passées depuis AttendanceScreen ──────────────────────
+  final String? presenceId;
+  final DateTime? date;
+  final String? startTime;
+  final String? endTime;
+  final String? salleName;
+  final String? justificatifStatus; // 'en_attente' | 'validé' | 'rejeté'
+
   const DetailSeanceScreen({
     super.key,
     required this.status,
     required this.courseName,
     required this.professorName,
+    // Optionnels pour rétrocompatibilité
+    this.presenceId,
+    this.date,
+    this.startTime,
+    this.endTime,
+    this.salleName,
+    this.justificatifStatus,
   });
+
+  // ── Formatage de la date ──────────────────────────────────────────────────
+  String get _formattedDate {
+    if (date == null) return 'Date inconnue';
+    const jours = [
+      'Lundi',
+      'Mardi',
+      'Mercredi',
+      'Jeudi',
+      'Vendredi',
+      'Samedi',
+      'Dimanche',
+    ];
+    const mois = [
+      'Janvier',
+      'Février',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Août',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'Décembre',
+    ];
+    return '${jours[date!.weekday - 1]} ${date!.day} ${mois[date!.month - 1]}';
+  }
+
+  String get _timeRange {
+    if (startTime == null || endTime == null) return '--:-- — --:--';
+    return '$startTime — $endTime';
+  }
+
+  String get _salleDisplay => salleName ?? 'Salle inconnue';
+
+  // ── Libellé du statut justificatif ───────────────────────────────────────
+  String get _justifLabel {
+    switch (justificatifStatus) {
+      case 'validé':
+        return 'Validé par l\'Administration';
+      case 'rejeté':
+        return 'Rejeté';
+      case 'en_attente':
+        return 'En cours de traitement';
+      default:
+        return 'Justificatif soumis';
+    }
+  }
+
+  String get _justifSubtitle {
+    switch (justificatifStatus) {
+      case 'validé':
+        return 'Votre justificatif a été accepté.';
+      case 'rejeté':
+        return 'Votre justificatif a été refusé. Contactez votre professeur.';
+      case 'en_attente':
+        return 'Votre justificatif est en attente de traitement.';
+      default:
+        return '';
+    }
+  }
+
+  Color _justifColor(BuildContext context) {
+    switch (justificatifStatus) {
+      case 'validé':
+        return AppColors.success;
+      case 'rejeté':
+        return AppColors.danger;
+      default:
+        return AppColors.orange;
+    }
+  }
+
+  IconData _justifIcon() {
+    switch (justificatifStatus) {
+      case 'validé':
+        return Icons.check_circle;
+      case 'rejeté':
+        return Icons.cancel;
+      default:
+        return Icons.hourglass_empty_rounded;
+    }
+  }
 
   void _showJustifyModal(BuildContext context) {
     showModalBottomSheet(
@@ -42,10 +141,10 @@ class DetailSeanceScreen extends StatelessWidget {
           ),
           child: JustificatifsUploadScreen(
             absence: AbsenceEnAttente(
-              id: '1',
+              id: presenceId ?? '0',
               courseName: courseName,
-              date: '14 Octobre',
-              timeRange: '2h',
+              date: _formattedDate,
+              timeRange: _timeRange,
             ),
           ),
         ),
@@ -78,6 +177,7 @@ class DetailSeanceScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Carte statut ────────────────────────────────────────────
             SessionCard(
               status: status,
               courseName: courseName,
@@ -85,34 +185,37 @@ class DetailSeanceScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Infos
-            const InfoRow(
+            // ── Date & heure ────────────────────────────────────────────
+            InfoRow(
               icon: Icons.calendar_month_outlined,
               label: 'DATE & HEURE',
-              line1: 'Lundi 14 Octobre',
-              line2: '08:30 — 10:30',
+              line1: _formattedDate,
+              line2: _timeRange,
             ),
             const SizedBox(height: 12),
 
-            const InfoRow(
+            // ── Salle ───────────────────────────────────────────────────
+            InfoRow(
               icon: Icons.location_on_outlined,
               label: 'EMPLACEMENT',
-              line1: 'Salle 302',
-              line2: 'Bâtiment Turing, 3ème étage',
+              line1: _salleDisplay,
             ),
             const SizedBox(height: 12),
 
+            // ── Professeur ──────────────────────────────────────────────
             InfoRow(
               customLeading: const CircleAvatar(
                 radius: 26,
-                backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=51'),
+                backgroundImage: NetworkImage(
+                  'https://i.pravatar.cc/150?img=51',
+                ),
               ),
               label: 'PROFESSEUR',
               line1: professorName,
             ),
             const SizedBox(height: 20),
 
-            // Actions or Status block depending on status
+            // ── Bouton justifier (si absent sans justificatif) ───────────
             if (status == SessionStatus.absence) ...[
               AppPrimaryButton(
                 text: 'Justifier une absence',
@@ -122,6 +225,7 @@ class DetailSeanceScreen extends StatelessWidget {
               const SizedBox(height: 20),
             ],
 
+            // ── Statut du justificatif (si justified) ────────────────────
             if (status == SessionStatus.justified) ...[
               Container(
                 width: double.infinity,
@@ -145,135 +249,46 @@ class DetailSeanceScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Row(
-                      children: const [
-                        Icon(Icons.check_circle, color: AppColors.success, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          "Validé par l'Administration",
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                      children: [
+                        Icon(
+                          _justifIcon(),
+                          color: _justifColor(context),
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _justifLabel,
+                            style: TextStyle(
+                              color: _justifColor(context),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Justificatif médical reçu et validé le 15 Octobre.",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
+                    if (_justifSubtitle.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        _justifSubtitle,
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
               const SizedBox(height: 20),
             ],
 
-            // Notes de séance
-            Row(
-              children: const [
-                Icon(Icons.notes, color: AppColors.primary, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  'Notes de séance',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Lors de cette séance, nous avons exploré la complexité algorithmique des structures de données avancées, notamment les arbres B+ et les graphes pondérés. Un accent particulier a été mis sur l\'algorithme de Dijkstra et ses optimisations.',
-                    style: TextStyle(
-                      color: Color(0xFF555555),
-                      fontSize: 13,
-                      height: 1.6,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Divider(height: 1, color: Color(0xFFEEEEEE)),
-                  const SizedBox(height: 16),
-                  
-                  // Pièces jointes
-                  _AttachmentItem(
-                    icon: Icons.picture_as_pdf,
-                    color: Colors.red,
-                    name: 'Support_Cours_V3.pdf',
-                  ),
-                  const SizedBox(height: 10),
-                  _AttachmentItem(
-                    icon: Icons.folder_zip,
-                    color: AppColors.info,
-                    name: 'TD_Arbres_Equilibres.zip',
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: 30),
           ],
         ),
       ),
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 2),
-    );
-  }
-}
-
-class _AttachmentItem extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String name;
-
-  const _AttachmentItem({
-    required this.icon,
-    required this.color,
-    required this.name,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              name,
-              style: const TextStyle(
-                color: AppColors.primary,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const Icon(Icons.download_rounded, color: Colors.grey, size: 20),
-        ],
-      ),
+      bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
     );
   }
 }
