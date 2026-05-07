@@ -61,6 +61,66 @@ class CourseModel {
   final DateTime date;
 
   String get timeRange => '$startTime – $endTime';
+
+  factory CourseModel.fromJson(Map<String, dynamic> json) {
+    final matiere = json['matieres'] as Map<String, dynamic>? ?? {};
+    final user    = json['users']    as Map<String, dynamic>? ?? {};
+    final salle   = json['salles']   as Map<String, dynamic>? ?? {};
+
+    final matiereName = matiere['name'] as String? ?? 'Cours';
+    final matiereCode = matiere['code'] as String?;
+    final isExam      = json['is_exam'] as bool? ?? false;
+    final seanceType  = json['type']    as String? ?? 'cours';
+
+    final firstName = user['first_name'] as String? ?? '';
+    final lastName  = user['last_name']  as String? ?? '';
+    final profName  = '$firstName $lastName'.trim();
+
+    return CourseModel(
+      id:         json['id']   as String? ?? '',
+      title:      matiereName,
+      startTime:  _trimTime(json['start_time'] as String?),
+      endTime:    _trimTime(json['end_time']   as String?),
+      room:       salle['name'] as String? ?? 'Salle inconnue',
+      professor:  profName.isEmpty ? 'Professeur' : 'Prof. $profName',
+      type:       _courseType(seanceType, isExam),
+      tag:        _subjectTag(matiereName, matiereCode),
+      date:       DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+    );
+  }
+
+  static String _trimTime(String? t) {
+    if (t == null || t.isEmpty) return '--:--';
+    return t.length >= 5 ? t.substring(0, 5) : t;
+  }
+
+  static CourseType _courseType(String type, bool isExam) {
+    if (isExam || type == 'examen') return CourseType.exam;
+    if (type == 'tp') return CourseType.lab;
+    return CourseType.normal;
+  }
+
+  static SubjectTag _subjectTag(String name, String? code) {
+    final n = name.toLowerCase();
+    if (n.contains('math') || n.contains('analyse') || n.contains('algèbre') ||
+        n.contains('calcul') || n.contains('statistique')) {
+      return SubjectTag.maths;
+    }
+    if (n.contains('info') || n.contains('algo') || n.contains('programm') ||
+        n.contains('base de données') || n.contains('réseau') ||
+        n.contains('logiciel') || n.contains('système')) {
+      return SubjectTag.informatique;
+    }
+    if (n.contains('physique') || n.contains('chimie') ||
+        n.contains('biologie') || n.contains('électronique')) {
+      return SubjectTag.physique;
+    }
+    if (n.contains('anglais') || n.contains('français') ||
+        n.contains('langue') || n.contains('expression')) {
+      return SubjectTag.langues;
+    }
+    return SubjectTag.all;
+  }
 }
 
 // ── Données mock ──────────────────────────────────────────────────────────────
