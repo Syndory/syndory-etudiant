@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:syndory_etudiant/components/appBottomNavbar.dart';
 import 'package:syndory_etudiant/components/appNavbarNoReturn.dart';
 import 'package:syndory_etudiant/components/apptheme.dart';
+import 'package:syndory_etudiant/services/calendar_service.dart';
 import 'calendar_data.dart';
 import 'calendar_widgets.dart';
 
@@ -23,30 +23,54 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   bool _isLoading = true;
   bool _hasLoaded = false;
+  String? _error;
   int _viewIndex = 0;
   SubjectTag _selectedTag = SubjectTag.all;
-  DateTime _weekStart = DateTime(2024, 10, 14);
+  late DateTime _weekStart;
+  late DateTime _monthStart;
 
   List<CourseModel> _allCourses = [];
 
-  // Déclenché quand l'onglet calendar devient actif (IndexedStack passe navIndex=1)
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _weekStart  = DateTime(now.year, now.month, now.day - (now.weekday - 1));
+    _monthStart = DateTime(now.year, now.month, 1);
+    if (widget.navIndex == 1) _loadData();
+  }
+
   @override
   void didUpdateWidget(CalendarPage old) {
     super.didUpdateWidget(old);
-    if (widget.navIndex == 1 && !_hasLoaded) {
-      _loadData();
-    }
+    if (widget.navIndex == 1 && !_hasLoaded) _loadData();
   }
 
   Future<void> _loadData() async {
-    // Remplacer par un appel API réel quand le backend sera disponible
-    await Future.delayed(const Duration(milliseconds: 1500));
-    if (!mounted) return;
-    setState(() {
-      _allCourses = getMockData();
-      _isLoading = false;
-      _hasLoaded = true;
-    });
+    setState(() { _isLoading = true; _error = null; });
+    try {
+      final DateTime from, to;
+      if (_viewIndex == 2) {
+        from = _monthStart;
+        to   = DateTime(_monthStart.year, _monthStart.month + 1, 0);
+      } else {
+        from = _weekStart;
+        to   = _weekStart.add(const Duration(days: 6));
+      }
+      final courses = await CalendarService.instance.fetchSeances(from: from, to: to);
+      if (!mounted) return;
+      setState(() {
+        _allCourses = courses;
+        _isLoading  = false;
+        _hasLoaded  = true;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _error     = "Impossible de charger l'emploi du temps.";
+      });
+    }
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -89,11 +113,15 @@ class _CalendarPageState extends State<CalendarPage> {
     return '${_frDays[date.weekday]} ${date.day} ${_frMonthsShort[date.month]}';
   }
 
-  void _prevWeek() =>
-      setState(() => _weekStart = _weekStart.subtract(const Duration(days: 7)));
+  void _prevWeek() {
+    setState(() => _weekStart = _weekStart.subtract(const Duration(days: 7)));
+    _loadData();
+  }
 
-  void _nextWeek() =>
-      setState(() => _weekStart = _weekStart.add(const Duration(days: 7)));
+  void _nextWeek() {
+    setState(() => _weekStart = _weekStart.add(const Duration(days: 7)));
+    _loadData();
+  }
 
   // ── Build ─────────────────────────────────────────────────────────────────
 
@@ -104,12 +132,14 @@ class _CalendarPageState extends State<CalendarPage> {
       appBar: AppNavBarNoReturn(title: "Calendrier"),
       body: _isLoading
           ? const CalendarLoadingSkeleton()
-          : Column(
-              children: [
-                _buildTopControls(),
-                Expanded(child: _buildBody()),
-              ],
-            ),
+          : _error != null
+              ? _buildError()
+              : Column(
+                  children: [
+                    _buildTopControls(),
+                    Expanded(child: _buildBody()),
+                  ],
+                ),
       // ✅ Remplace le BottomNavigationBar hardcodé par le composant partagé
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: widget.navIndex,
@@ -118,37 +148,18 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: Colors.white,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.menu, color: Color(0xFF374151)),
-        onPressed: () {},
+  Widget _buildError() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.wifi_off_rounded, size: 48, color: kGrey),
+          const SizedBox(height: 12),
+          Text(_error!, style: const TextStyle(color: kGrey)),
+          const SizedBox(height: 16),
+          TextButton(onPressed: _loadData, child: const Text('Réessayer')),
+        ],
       ),
-      title: Text(
-        'Calendrier',
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.bold,
-          color: kOrange,
-          fontSize: 20,
-        ),
-      ),
-      centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search, color: Color(0xFF374151)),
-          onPressed: () {},
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: CircleAvatar(
-            radius: 18,
-            backgroundColor: kGreyLight,
-            child: const Icon(Icons.person, color: kGrey, size: 20),
-          ),
-        ),
-      ],
     );
   }
 
@@ -160,7 +171,10 @@ class _CalendarPageState extends State<CalendarPage> {
         children: [
           ViewToggle(
             selected: _viewIndex,
-            onChanged: (i) => setState(() => _viewIndex = i),
+            onChanged: (i) {
+              setState(() => _viewIndex = i);
+              _loadData();
+            },
           ),
           if (_viewIndex == 1) ...[
             const SizedBox(height: 12),
